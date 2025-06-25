@@ -20,14 +20,16 @@ A comprehensive web-based analysis platform for analyzing, optimizing, and simul
 ## Requirements
 
 ```
-Python >= 3.8
-Flask >= 2.0
-RDKit >= 2022.03
-NumPy >= 1.21
-Pandas >= 1.3
-Matplotlib >= 3.5
-Plotly >= 5.0
-SQLAlchemy >= 1.4
+Flask==2.0.1
+pandas==1.3.3
+numpy==1.21.2
+matplotlib==3.4.3
+seaborn==0.11.2
+scikit-learn==0.24.2
+xgboost==1.4.2
+shap==0.39.0
+gitpython==3.1.18
+requests==2.26.0
 ```
 
 ## Installation
@@ -49,16 +51,6 @@ python run.py
 ```
 
 The application will be available at `http://0.0.0.0:5000`.
-
-## Usage
-
-### Web Interface
-
-1. **Home Page**: Select reaction type (Aryl-Aryl, Aryl-Alkenyl, etc.)
-2. **Reactant Input**: Enter reactants in SMILES format
-3. **Catalyst Selection**: Choose appropriate Pd catalyst
-4. **Condition Optimization**: Adjust temperature, solvent, base parameters
-5. **Analysis**: View reaction mechanism and expected products
 
 ## Project Structure
 
@@ -102,7 +94,7 @@ This application is based on the following scientific principles:
 ### Batch Processing
 1. Upload CSV file with multiple reactions
 2. Apply optimization algorithms
-3. Export results as Excel/PDF report
+3. Export results as Image And Text
 
 ## Dataset Requirements
 
