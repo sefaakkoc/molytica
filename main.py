@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
-"""sa"""
 rowcount = 0
 DATASET_LOG_DIR = 'datasets_log'
 DATASET_LOG_DIR2 = 'static/datasets'
