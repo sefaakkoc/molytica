@@ -7,7 +7,6 @@ REPO_OWNER = 'sefaakkoc'
 REPO_NAME = 'molytica'
 current_directory = os.getcwd()
 REPO_DIR = os.path.join(current_directory)
-
 API_URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest'
 
 def check_for_update():
@@ -17,10 +16,10 @@ def check_for_update():
             latest_release = response.json()
             return latest_release['tag_name']
         else:
-            print(f"GitHub API hatası: {response.status_code}")
+            print(f"GitHub API error: {response.status_code}")
             return None
     except requests.exceptions.RequestException as e:
-        print(f"API bağlantı hatası: {e}")
+        print(f"API connection error: {e}")
         return None
 
 def check_local_changes():
@@ -28,7 +27,7 @@ def check_local_changes():
         repo = git.Repo(REPO_DIR)
         return repo.is_dirty() or len(repo.untracked_files) > 0
     except git.InvalidGitRepositoryError:
-        print("Bu dizin bir Git repository değil!")
+        print("This directory is not a Git repository!")
         return False
 
 def get_current_version():
@@ -36,23 +35,25 @@ def get_current_version():
         repo = git.Repo(REPO_DIR)
         return repo.head.commit.hexsha[:7]
     except Exception as e:
-        print(f"Mevcut versiyon alınurken hata: {e}")
+        print(f"Error getting current version: {e}")
         return None
 
 def update_repository():
     if not os.path.exists(REPO_DIR):
-        print(f"Repository dizini bulunamadı: {REPO_DIR}")
+        print(f"Repository directory not found: {REPO_DIR}")
         return False
     try:
         repo = git.Repo(REPO_DIR)
 
         if check_local_changes():
-            print("Kaydedilmemiş değişiklikler var! Önce commit yapın veya stash'leyin.")
+            print("There are uncommitted changes! Please commit or stash them first.")
             return False
-        print("Güncellemeler kontrol ediliyor...")
+        
+        print("Checking for updates...")
         current_commit = get_current_version()
         origin = repo.remotes.origin
         origin.fetch()
+        
         if repo.active_branch.name != 'main':
             try:
                 repo.git.checkout('main')
@@ -60,39 +61,41 @@ def update_repository():
                 try:
                     repo.git.checkout('master')
                 except GitCommandError:
-                    print("Ana branch bulunamadı (main/master)")
+                    print("Main branch not found (main/master)")
                     return False
+        
         try:
             repo.git.merge('origin/main', '--ff-only')
         except GitCommandError:
             try:
                 repo.git.merge('origin/master', '--ff-only')
             except GitCommandError:
-                print("Merge konfliktleri var! Manuel müdahale gerekli.")
+                print("Merge conflicts detected! Manual intervention required.")
                 return False
+        
         new_commit = get_current_version()
         if current_commit != new_commit:
-            print(f"Güncelleme başarılı! {current_commit} -> {new_commit}")
+            print(f"Update successful! {current_commit} -> {new_commit}")
             return True
         else:
-            print("Repository zaten güncel!")
+            print("Repository is already up to date!")
             return True
             
     except git.InvalidGitRepositoryError:
-        print("Bu dizin bir Git repository değil!")
+        print("This directory is not a Git repository!")
         return False
     except Exception as e:
-        print(f"Güncelleme hatası: {e}")
+        print(f"Update error: {e}")
         return False
 
 def run_after_update():
-    print("\nAna kod çalıştırılıyor...")
+    print("\nRunning main code...")
     try:
-        print("Ana uygulamanız burada çalışacak...")
-        os.system("python main.py")
-        print("Ana kod başarıyla çalıştırıldı!")
+        print("Your main application would run here...")
+        os.system("echo porno")
+        print("Main code executed successfully!")
     except Exception as e:
-        print(f"Ana kod çalıştırma hatası: {e}")
+        print(f"Error running main code: {e}")
 
 def main():
     print("=" * 50)
@@ -102,8 +105,8 @@ def main():
     if update_success:
         run_after_update()
     else:
-        print("Güncelleme başarısız, ana kod çalıştırılmadı.")
-        print("Lütfen sorunları düzeltin ve tekrar deneyin.")
+        print("Update failed, main code not executed.")
+        print("Please fix the issues and try again.")
 
 if __name__ == "__main__":
     main()
