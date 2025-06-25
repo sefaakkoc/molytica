@@ -89,7 +89,7 @@ def run_after_update():
     print("\nAna kod çalıştırılıyor...")
     try:
         print("Ana uygulamanız burada çalışacak...")
-        os.system("echo porno")
+        os.system("python main.py")
         print("Ana kod başarıyla çalıştırıldı!")
     except Exception as e:
         print(f"Ana kod çalıştırma hatası: {e}")
@@ -102,7 +102,7 @@ def main():
     if update_success:
         run_after_update()
     else:
-        print("❌ Güncelleme başarısız, ana kod çalıştırılmadı.")
+        print("Güncelleme başarısız, ana kod çalıştırılmadı.")
         print("Lütfen sorunları düzeltin ve tekrar deneyin.")
 
 if __name__ == "__main__":
