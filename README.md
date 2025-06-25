@@ -48,7 +48,7 @@ pip install -r requirements.txt
 python run.py
 ```
 
-The application will be available at `http://localhost:5000`.
+The application will be available at `http://0.0.0.0:5000`.
 
 ## Usage
 
@@ -64,33 +64,16 @@ The application will be available at `http://localhost:5000`.
 
 ```
 molytica/
-├── run.py                  # Main application runner
-├── app.py                  # Flask application
-├── config.py              # Configuration settings
-├── requirements.txt       # Python dependencies
-├── models/
-│   ├── __init__.py
-│   ├── reaction.py       # Reaction models
-│   └── catalyst.py       # Catalyst database
-├── routes/
-│   ├── __init__.py
-│   ├── main.py          # Main routes
-│   └── analyzer.py      # Analysis endpoints
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── img/
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   └── analyzer.html
-├── utils/
-│   ├── chemistry.py     # Chemistry calculations
-│   ├── visualization.py # Molecular visualization
-│   └── optimizer.py     # Reaction optimization
-└── tests/
-    ├── test_reactions.py
-    └── test_analyzer.py
+├───code
+├───outputs
+├───static
+│   ├───assets
+│   ├───datasets
+│   ├───images
+│   ├───model
+│   ├───outputs
+│   └───xml_data
+└───templates
 ```
 
 ## Scientific Foundation
@@ -105,9 +88,6 @@ This application is based on the following scientific principles:
 ## Supported Reaction Types
 
 - Aryl-Aryl coupling
-- Aryl-Alkenyl coupling  
-- Heteroaryl coupling
-- Alkenyl-Alkenyl coupling
 - Alkyl-Aryl coupling (limited)
 
 ## Example Workflows
@@ -153,7 +133,6 @@ phenylboronic acid,bromobenzene,1,1'-biphenyl,I[Pd](I)([N]1=CC=CC=C1)C(N2C)N(C)C
 
 ### Analysis Process
 
-** Important Notes:**
 - Analysis may take **2-5 minutes** per reaction depending on complexity
 - Large datasets (>50 reactions) may require **10-30 minutes** of processing time
 - Do not close the browser window during analysis
@@ -169,12 +148,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Lead Developer** - [Sefa Akkoc](https://github.com/sefaakkoc)
 - **Chemistry Advisor** - Assoc. Prof. Dr. Mitat Akkoc
 
-## Acknowledgments
-
-- RDKit community for cheminformatics tools
-- Flask development team
-- Contributors to open-source chemistry software
-
 ## References
 
 1. Miyaura, N.; Suzuki, A. *Chem. Rev.* **1995**, *95*, 2457-2483.
@@ -188,10 +161,4 @@ For issues and questions:
 - Open an [Issue](https://github.com/sefaakkoc/molytica/issues)
 - Check the [Wiki](https://github.com/sefaakkoc/molytica/wiki)
 
-
-
----
-
-⚗**Note**: This software is intended for academic and research purposes. Please contact the developers before commercial use.
-
-**Citation**: If you use this software in your research, please cite our paper: [DOI:10.xxxx/xxxxx]
+**Note**: This software is intended for academic and research purposes. Please contact the developers before commercial use.
