@@ -11,7 +11,6 @@ import requests
 from urllib.parse import urlparse
 
 app = Flask(__name__)
-#a
 logging.basicConfig(level=logging.DEBUG)
 rowcount = 0
 DATASET_LOG_DIR = 'datasets_log'
