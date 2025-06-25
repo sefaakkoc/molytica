@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manuel Veri Girişi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background-color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #333;
+  user-select: none;
+  border-bottom: 1px solid #ddd;
+  font-weight: 700;
+  font-size: 1.2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  white-space: nowrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 40px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.language-switcher {
+  background: transparent;
+  border: 2px solid #bbb;
+  padding: 6px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  user-select: none;
+  font-size: 0.9rem;
+}
+
+.language-switcher:hover {
+  background-color: #ddd;
+  color: #333;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  padding: 30px;
+  gap: 30px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.form-panel, .table-panel {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  overflow-y: auto;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.form-panel {
+  width: 380px;
+  min-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-panel h2 {
+  margin: 0 0 20px 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+}
+
+label {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #333;
+  user-select: none;
+  display: block;
+}
+
+input[type="text"],
+input[type="number"],
+#filename {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+#filename:focus {
+  outline: none;
+  border-color: #999;
+  background-color: #f9f9f9;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+button {
+  padding: 12px 24px;
+  border: none;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #fff;
+  background-color: #333;
+  min-width: 120px;
+}
+
+button:hover:not(:disabled) {
+  background-color: #555;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #777;
+}
+
+.table-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-panel h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  user-select: none;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.toolbar button {
+  flex: none;
+  padding: 8px 16px;
+  min-width: 100px;
+  font-size: 14px;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #333;
+  user-select: none;
+  font-size: 14px;
+  min-width: 900px;
+}
+
+thead {
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+thead th {
+  padding: 14px 16px;
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+  user-select: none;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+tbody td {
+  padding: 12px 14px;
+  text-align: center;
+}
+
+tbody td[contenteditable="true"] {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  cursor: text;
+  outline: none;
+  color: #333;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+tbody td[contenteditable="true"]:focus {
+  border-color: #bbb;
+  background-color: #f9f9f9;
+}
+
+.action-btn {
+  background-color: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 8px;
+  transition: color 0.25s ease;
+  user-select: none;
+}
+
+.action-btn:hover {
+  color: #d33;
+}
+
+.live-clock {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+  margin-right: 15px;
+  white-space: nowrap;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #bbb #f1f1f1;
+}
+
+/* Mobil Görünüm */
+@media (max-width: 992px) {
+  main {
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .form-panel {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .toolbar {
+    justify-content: center;
+  }
+  
+  header {
+    padding: 12px 15px;
+  }
+  
+  header h1 {
+    font-size: 1.1rem;
+  }
+  
+  .live-clock {
+    font-size: 1rem;
+    margin-right: 10px;
+  }
+  
+  .language-switcher {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Küçük Mobil Cihazlar */
+@media (max-width: 576px) {
+  main {
+    padding: 15px;
+  }
+  
+  .form-panel, .table-panel {
+    padding: 15px;
+  }
+  
+  .form-panel h2, .table-panel h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  #filename {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    min-width: 100px;
+    font-size: 14px;
+  }
+  
+  .buttons {
+    gap: 10px;
+  }
+  
+  .toolbar button {
+    min-width: 80px;
+    padding: 6px 12px;
+  }
+  
+  thead th {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  tbody td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" />
+    <h1>Chemical Data Analyser</h1>
+  </div>
+  <div class="header-right">
+    <span id="live-clock" class="live-clock"></span>
+    <button id="lang-switch" class="language-switcher">EN</button>
+  </div>
+</header>
+
+<main>
+  <div class="form-panel">
+    <h2>Veri Girişi</h2>
+    <form id="dataForm" autocomplete="off" novalidate>
+      <label for="filename">Dosya Adı (uzantı olmadan)</label>
+      <input type="text" id="filename" name="filename" autocomplete="off" placeholder="veri_ornegi" required />
+
+      <label for="ArB">Ar-B(OH)₂</label>
+      <input type="text" id="ArB" name="ArB" autocomplete="off" />
+
+      <label for="ArX">Ar-X</label>
+      <input type="text" id="ArX" name="ArX" autocomplete="off" />
+
+      <label for="Product">Product</label>
+      <input type="text" id="Product" name="Product" autocomplete="off" />
+
+      <label for="Catalizor">Catalizor</label>
+      <input type="text" id="Catalizor" name="Catalizor" autocomplete="off" />
+
+      <label for="Base">Base</label>
+      <input type="text" id="Base" name="Base" autocomplete="off" />
+
+      <label for="Solv1">Solv1</label>
+      <input type="text" id="Solv1" name="Solv1" autocomplete="off" />
+
+      <label for="Solv2">Solv2</label>
+      <input type="text" id="Solv2" name="Solv2" autocomplete="off" />
+
+      <label for="Amount">Amount</label>
+      <input type="number" id="Amount" name="Amount" step="0.0001" min="0" autocomplete="off" />
+
+      <label for="Centigrades">Centigrades</label>
+      <input type="number" id="Centigrades" name="Centigrades" step="1" min="0" autocomplete="off" />
+
+      <label for="Minute">Minute</label>
+      <input type="number" id="Minute" name="Minute" step="1" min="0" autocomplete="off" />
+
+      <label for="Cycle">Cycle</label>
+      <input type="number" id="Cycle" name="Cycle" step="1" min="0" autocomplete="off" />
+
+      <label for="Yield">Yield</label>
+      <input type="number" id="Yield" name="Yield" step="1" min="0" max="100" autocomplete="off" />
+
+      <div class="buttons">
+        <button type="button" id="addBtn">Ekle</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-panel">
+    <h2>Kaydedilen Veriler</h2>
+    <div class="toolbar">
+      <button id="undoBtn" disabled>Geri Al</button>
+      <button id="redoBtn" disabled>Yinele</button>
+      <button id="exportBtn">CSV Olarak Kaydet</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="savedDataTable" tabindex="0">
+        <thead>
+          <tr>
+            <th>Ar-B(OH)₂</th>
+            <th>Ar-X</th>
+            <th>Product</th>
+            <th>Catalizor</th>
+            <th>Base</th>
+            <th>Solv1</th>
+            <th>Solv2</th>
+            <th>Amount</th>
+            <th>Centigrades</th>
+            <th>Minute</th>
+            <th>Cycle</th>
+            <th>Yield</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+const form = document.getElementById('dataForm');
+const addBtn = document.getElementById('addBtn');
+const undoBtn = document.getElementById('undoBtn');
+const redoBtn = document.getElementById('redoBtn');
+const exportBtn = document.getElementById('exportBtn');
+const langSwitch = document.getElementById('lang-switch');
+const tableBody = document.querySelector('#savedDataTable tbody');
+
+const COLUMN_HEADERS = [
+    "Ar-B(OH)₂",
+    "Ar-X",
+    "Product",
+    "Catalizor",
+    "Base",
+    "Solv1",
+    "Solv2",
+    "Amount",
+    "Centigrades",
+    "Minute",
+    "Cycle",
+    "Yield"
+];
+
+const HEADER_TO_FIELD = {
+    "Ar-B(OH)₂": "ArB",
+    "Ar-X": "ArX",
+    "Product": "Product",
+    "Catalizor": "Catalizor",
+    "Base": "Base",
+    "Solv1": "Solv1",
+    "Solv2": "Solv2",
+    "Amount": "Amount",
+    "Centigrades": "Centigrades",
+    "Minute": "Minute",
+    "Cycle": "Cycle",
+    "Yield": "Yield"
+};
+
+let dataRows = [];
+let undoStack = [];
+let redoStack = [];
+let currentLang = 'tr';
+
+const translations = {
+    tr: {
+        buttons: {
+            add: "Ekle",
+            undo: "Geri Al",
+            redo: "Yinele",
+            export: "CSV Olarak Kaydet",
+            lang: "EN"
+        },
+        alerts: {
+            empty: "Lütfen en az bir alanı doldurun.",
+            saved: "Veriler başarıyla kaydedildi!",
+            saving: "Veriler kaydediliyor..."
+        },
+        titles: {
+            dataEntry: "Veri Girişi",
+            savedData: "Kaydedilen Veriler"
+        },
+        deleteTitle: "Satırı sil"
+    },
+    en: {
+        buttons: {
+            add: "Add",
+            undo: "Undo",
+            redo: "Redo",
+            export: "Save as CSV",
+            lang: "TR"
+        },
+        alerts: {
+            empty: "Please fill at least one field.",
+            saved: "Data saved successfully!",
+            saving: "Saving data..."
+        },
+        titles: {
+            dataEntry: "Data Entry",
+            savedData: "Saved Data"
+        },
+        deleteTitle: "Delete row"
+    }
+};
+
+function init() {
+    updateLanguage();
+    renderTable();
+    setupEventListeners();
+    startClock();
+}
+
+function updateLanguage() {
+    const lang = translations[currentLang];
+    
+    addBtn.textContent = lang.buttons.add;
+    undoBtn.textContent = lang.buttons.undo;
+    redoBtn.textContent = lang.buttons.redo;
+    exportBtn.textContent = lang.buttons.export;
+    langSwitch.textContent = lang.buttons.lang;
+    
+    document.querySelector('.form-panel h2').textContent = lang.titles.dataEntry;
+    document.querySelector('.table-panel h2').textContent = lang.titles.savedData;
+}
+
+function saveStateForUndo() {
+    undoStack.push(JSON.stringify(dataRows));
+    if (undoStack.length > 50) undoStack.shift();
+    redoStack = [];
+    updateUndoRedoButtons();
+}
+
+function undo() {
+    if (undoStack.length === 0) return;
+    redoStack.push(JSON.stringify(dataRows));
+    dataRows = JSON.parse(undoStack.pop());
+    renderTable();
+}
+
+function redo() {
+    if (redoStack.length === 0) return;
+    undoStack.push(JSON.stringify(dataRows));
+    dataRows = JSON.parse(redoStack.pop());
+    renderTable();
+}
+
+function updateUndoRedoButtons() {
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+}
+
+function renderTable() {
+    tableBody.innerHTML = '';
+    
+    dataRows.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        
+        COLUMN_HEADERS.forEach(header => {
+            const fieldName = HEADER_TO_FIELD[header];
+            const td = document.createElement('td');
+            td.contentEditable = 'true';
+            td.textContent = row[fieldName] || '';
+            td.dataset.field = fieldName;
+            td.dataset.rowIndex = rowIndex;
+            td.addEventListener('input', handleCellEdit);
+            tr.appendChild(td);
+        });
+        
+        const actionTd = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.className = 'action-btn';
+        delBtn.innerHTML = '✖';
+        delBtn.title = translations[currentLang].deleteTitle;
+        delBtn.addEventListener('click', () => deleteRow(rowIndex));
+        actionTd.appendChild(delBtn);
+        tr.appendChild(actionTd);
+        
+        tableBody.appendChild(tr);
+    });
+    
+    updateUndoRedoButtons();
+}
+
+function handleCellEdit(e) {
+    const field = e.target.dataset.field;
+    const rowIndex = e.target.dataset.rowIndex;
+    saveStateForUndo();
+    dataRows[rowIndex][field] = e.target.textContent;
+}
+
+function deleteRow(rowIndex) {
+    saveStateForUndo();
+    dataRows.splice(rowIndex, 1);
+    renderTable();
+}
+
+function generateCSV() {
+    if (dataRows.length === 0) {
+        alert(translations[currentLang].alerts.empty);
+        return null;
+    }
+
+    let csvContent = COLUMN_HEADERS.join(",") + "\n";
+
+    dataRows.forEach(row => {
+        const rowValues = COLUMN_HEADERS.map(header => {
+            const fieldName = HEADER_TO_FIELD[header];
+            return row[fieldName] || '';
+        });
+        csvContent += rowValues.join(",") + "\n";
+    });
+
+    return csvContent;
+}
+
+async function saveToServer(filename, data) {
+    try {
+        alert(translations[currentLang].alerts.saving);
+        
+        const response = await fetch('/save_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                filename: filename.endsWith('.csv') ? filename : filename + '.csv',
+                data: data
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(translations[currentLang].alerts.saved);
+            return true;
+        } else {
+            alert('Hata: ' + result.message);
+            return false;
+        }
+    } catch (error) {
+        alert('Hata oluştu: ' + error.message);
+        return false;
+    }
+}
+
+async function addData() {
+    const formData = new FormData(form);
+    const filename = formData.get('filename');
+    
+    if (!filename || filename.trim() === '') {
+        alert("Lütfen bir dosya adı girin.");
+        return;
+    }
+
+    let isEmpty = true;
+    for (const [key, val] of formData.entries()) {
+        if (key !== 'filename' && val.trim() !== '') {
+            isEmpty = false;
+            break;
+        }
+    }
+
+    if (isEmpty) {
+        alert(translations[currentLang].alerts.empty);
+        return;
+    }
+
+    saveStateForUndo();
+
+    const newRow = {};
+    COLUMN_HEADERS.forEach(header => {
+        const fieldName = HEADER_TO_FIELD[header];
+        newRow[fieldName] = formData.get(fieldName) || '';
+    });
+    
+    dataRows.push(newRow);
+    renderTable();
+    
+    const csvContent = generateCSV();
+    if (csvContent) {
+        await saveToServer(filename, csvContent);
+        form.reset();
+    }
+}
+
+async function exportData() {
+    if (dataRows.length === 0) {
+        alert(translations[currentLang].alerts.empty);
+        return;
+    }
+    
+    const filename = prompt(
+        "Dosya adı girin:",
+        dataRows[0].filename || 'data'
+    );
+    
+    if (filename) {
+        const csvContent = generateCSV();
+        if (csvContent) {
+            await saveToServer(filename, csvContent);
+        }
+    }
+}
+
+function startClock() {
+    updateClock();
+    setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+    const clockElement = document.getElementById('live-clock');
+    const now = new Date();
+    clockElement.textContent = now.toLocaleTimeString();
+}
+
+function setupEventListeners() {
+    addBtn.addEventListener('click', addData);
+    exportBtn.addEventListener('click', exportData);
+    undoBtn.addEventListener('click', undo);
+    redoBtn.addEventListener('click', redo);
+    langSwitch.addEventListener('click', toggleLanguage);
+    
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('click', function() {
+            window.location.href = window.location.origin + '/';
+        });
+    }
+}
+
+function toggleLanguage() {
+    currentLang = currentLang === 'tr' ? 'en' : 'tr';
+    updateLanguage();
+    renderTable();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

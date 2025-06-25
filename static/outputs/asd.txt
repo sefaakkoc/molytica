@@ -1,0 +1,8 @@
+Analiz Tarihi: 2025-06-18_01-27-59
+Model R²: 0.161
+RMSE: 12.54
+Önemli Değişkenler:
+- MW (Moleküler Ağırlık)
+- LogP (Lipofilisite)
+- Sıcaklık (centigrades)
+- Reaksiyon Süresi (minute)

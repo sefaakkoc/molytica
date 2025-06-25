@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<models>
+  <model id="code1.py">
+    <name>SuzukiAnalyzer1</name>
+    <description>RDKit ve Moleküler Tanımlayıcılar kullanarak Suzuki-Miyaura tepkime analizi</description>
+    <detailed_description>
+      <![CDATA[
+      <h3>Model Overview</h3>
+      <p>Bu model, Suzuki-Miyaura çapraz bağlanma tepkimelerini RDKit kütüphanesi ve moleküler tanımlayıcılar kullanarak analiz eder. Tepkime verimini tahmin etmek için Random Forest algoritması kullanır.</p>
+      
+      <h3>Technical Details</h3>
+      <ul>
+        <li>RDKit tabanlı moleküler tanımlayıcı hesaplama</li>
+        <li>Random Forest Regressor modeli</li>
+        <li>MW, LogP, TPSA, QED gibi 12 farklı moleküler özellik</li>
+        <li>Tepkime ortakları için birleşik özellik analizi</li>
+      </ul>
+      
+      <h3>Use Cases</h3>
+      <ul>
+        <li>Suzuki-Miyaura tepkime verimi tahmini</li>
+        <li>Aryl halide ve boronic acid uyumluluğu analizi</li>
+        <li>Moleküler özellik-verim korelasyonu</li>
+        <li>Tepkime optimizasyonu</li>
+      </ul>
+      ]]>
+    </detailed_description>
+    <accuracy>85</accuracy>
+    <speed>78</speed>
+    <specs>
+      <spec name="Algoritma">Random Forest Regressor</spec>
+      <spec name="Özellik Sayısı">24+ moleküler tanımlayıcı</spec>
+      <spec name="Kütüphaneler">RDKit, scikit-learn, pandas</spec>
+      <spec name="Veri Türü">SMILES strings</spec>
+      <spec name="Çıktı">Tepkime verimi tahmini</spec>
+    </specs>
+    <benchmarks>
+      <benchmark name="R² Score">0.850</benchmark>
+      <benchmark name="MSE">12.5</benchmark>
+      <benchmark name="Cross Validation">5-fold</benchmark>
+    </benchmarks>
+    <pros>
+      <pro>Yorumlanabilir moleküler özellikler</pro>
+      <pro>Hızlı hesaplama süresi</pro>
+      <pro>Görselleştirme desteği</pro>
+      <pro>Özellik önemliliği analizi</pro>
+    </pros>
+    <cons>
+      <con>Sınırlı özellik çeşitliliği</con>
+      <con>Basit makine öğrenmesi modeli</con>
+      <con>Stereokimya bilgisi eksik</con>
+    </cons>
+  </model>
+
+  <model id="code2.py">
+    <name>SuzukiAnalyzer2</name>
+    <description>Morgan Fingerprints ve Kimyasal Benzerlik tabanlı Suzuki-Miyaura tepkime analizi</description>
+    <detailed_description>
+      <![CDATA[
+      <h3>Model Overview</h3>
+      <p>Bu model, Morgan fingerprint'leri ve kimyasal benzerlik analizi kullanarak Suzuki-Miyaura tepkimelerini değerlendirir. Sinir ağı modeli ile verim tahmini yapar ve t-SNE ile tepkime kümelemesi gerçekleştirir.</p>
+      
+      <h3>Technical Details</h3>
+      <ul>
+        <li>Morgan Fingerprint (2048 bit, radius=2)</li>
+        <li>Multi-Layer Perceptron (MLP) Regressor</li>
+        <li>Tanimoto benzerlik hesaplama</li>
+        <li>K-means kümeleme ve t-SNE görselleştirme</li>
+        <li>Halogen ve elektron çekici/verici grup analizi</li>
+      </ul>
+      
+      <h3>Use Cases</h3>
+      <ul>
+        <li>Kimyasal benzerlik bazlı tepkime analizi</li>
+        <li>Tepkime kümelemesi ve sınıflandırma</li>
+        <li>Yapı-aktivite ilişkisi (SAR) analizi</li>
+        <li>Yeni tepkime koşulları optimizasyonu</li>
+      </ul>
+      ]]>
+    </detailed_description>
+    <accuracy>92</accuracy>
+    <speed>65</speed>
+    <specs>
+      <spec name="Algoritma">MLP Neural Network</spec>
+      <spec name="Fingerprint">Morgan (2048 bit)</spec>
+      <spec name="Katmanlar">128-64-32 nöron</spec>
+      <spec name="Kümeleme">K-means + t-SNE</spec>
+      <spec name="Benzerlik">Tanimoto coefficient</spec>
+    </specs>
+    <benchmarks>
+      <benchmark name="CV R² Score">0.920 ± 0.045</benchmark>
+      <benchmark name="Clustering Silhouette">0.75</benchmark>
+      <benchmark name="Tanimoto Threshold">0.85</benchmark>
+    </benchmarks>
+    <pros>
+      <pro>Yüksek doğruluk oranı</pro>
+      <pro>Kimyasal benzerlik analizi</pro>
+      <pro>Gelişmiş görselleştirme</pro>
+      <pro>Kümeleme ve boyut azaltma</pro>
+      <pro>Yapısal özellik tanıma</pro>
+    </pros>
+    <cons>
+      <con>Yüksek hesaplama maliyeti</con>
+      <con>Karmaşık model yorumlama</con>
+      <con>Büyük veri gereksinimi</con>
+      <con>Fingerprint boyutu sınırlaması</con>
+    </cons>
+  </model>
+
+  <model id="code3.py">
+    <name>SuzukiAnalyzer3</name>
+    <description>Tepkime Koşulları ve Mekanizma Analizi tabanlı Suzuki-Miyaura tepkime optimizasyonu</description>
+    <detailed_description>
+      <![CDATA[
+      <h3>Model Overview</h3>
+      <p>Bu model, Suzuki-Miyaura tepkimelerini mekanistik yaklaşımla analiz eder. Katalitik döngü, elektronik/sterik etkiler, tepkime koşulları ve fizibilite skorları kullanarak gelişmiş optimizasyon önerileri sunar.</p>
+      
+      <h3>Technical Details</h3>
+      <ul>
+        <li>Gradient Boosting Regressor modeli</li>
+        <li>Hammett sigma parametreleri ve elektronik etki analizi</li>
+        <li>Sterik engel ve ortho-substitution analizi</li>
+        <li>Katalitik aktivite ve halogen reaktivitesi hesaplama</li>
+        <li>Arrhenius kinetik modelleme</li>
+        <li>Interaktif Plotly dashboard</li>
+      </ul>
+      
+      <h3>Use Cases</h3>
+      <ul>
+        <li>Tepkime koşulları optimizasyonu</li>
+        <li>Mekanistik tepkime analizi</li>
+        <li>Katalitik sistem seçimi</li>
+        <li>Elektronik ve sterik etki değerlendirmesi</li>
+        <li>Fizibilite skoru hesaplama</li>
+        <li>Interaktif tepkime dashboard'u</li>
+      </ul>
+      ]]>
+    </detailed_description>
+    <accuracy>88</accuracy>
+    <speed>72</speed>
+    <specs>
+      <spec name="Algoritma">Gradient Boosting Regressor</spec>
+      <spec name="Parametreler">Hammett sigma, sterik hacim, katalitik aktivite</spec>
+      <spec name="Optimizasyon">GridSearchCV hiperparametre tuning</spec>
+      <spec name="Görselleştirme">Interactive Plotly dashboard</spec>
+      <spec name="Fizibilite">Multi-faktör tepkime fizibilite skoru</spec>
+    </specs>
+    <benchmarks>
+      <benchmark name="GridSearch CV Score">0.880</benchmark>
+      <benchmark name="Feature Importance">15+ kimyasal parametre</benchmark>
+      <benchmark name="Optimization Accuracy">90%+ hedef verim</benchmark>
+    </benchmarks>
+    <pros>
+      <pro>Mekanistik tepkime analizi</pro>
+      <pro>Kapsamlı koşul optimizasyonu</pro>
+      <pro>İnteraktif dashboard</pro>
+      <pro>Fizibilite skoru hesaplama</pro>
+      <pro>Elektronik ve sterik etki analizi</pro>
+      <pro>Katalitik sistem karşılaştırması</pro>
+    </pros>
+    <cons>
+      <con>Karmaşık parametre hesaplama</con>
+      <con>Yoğun hesaplama gereksinimi</con>
+      <con>Geniş tepkime koşulları verisi gerekliliği</con>
+      <con>Yaklaşık Hammett değerleri</con>
+    </cons>
+  </model>
+</models>

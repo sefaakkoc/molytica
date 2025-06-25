@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Visualization Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #000000;
+            --border-color: #e0e0e0;
+            --dark-color: #000000;
+            --light-color: #ffffff;
+            --bg-color: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 12px 20px;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            height: 32px;
+            width: auto;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .current-time {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .viz-controls {
+            padding: 12px 20px;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .viz-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            min-width: 180px;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        .viz-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-color);
+            border: 1px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .viz-grid {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .viz-card {
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            background-color: var(--light-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .viz-card-header {
+            padding: 12px;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .viz-card-title {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--dark-color);
+        }
+
+        .viz-card-timestamp {
+            font-size: 12px;
+            color: #5f6368;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .viz-card-body {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-color);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .viz-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .viz-card-body:hover .viz-card-image {
+            transform: scale(1.03);
+        }
+
+        .viz-card-actions {
+            padding: 10px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--light-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .viz-action-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            background-color: var(--light-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+            color: var(--dark-color);
+        }
+
+        .viz-action-btn:hover {
+            background-color: #f1f1f1;
+        }
+
+        .viz-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .viz-fullscreen-image {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        .viz-fullscreen-controls {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .viz-fullscreen-btn {
+            padding: 10px 20px;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .viz-fullscreen-btn i {
+            font-size: 16px;
+        }
+
+        .viz-fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--light-color);
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 12px 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        .viz-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #5f6368;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .viz-placeholder-icon {
+            font-size: 48px;
+            color: #dadce0;
+            margin-bottom: 16px;
+        }
+
+        .viz-placeholder p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .viz-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, minmax(300px, 1fr));
+                padding: 10px;
+                gap: 15px;
+            }
+            
+            .viz-controls {
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+
+            .viz-card-image {
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+            .viz-card-body {
+                padding: 5px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .header-title {
+                font-size: 16px;
+            }
+
+            .current-time {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .viz-grid {
+                grid-template-rows: repeat(4, minmax(250px, 1fr));
+            }
+
+            .viz-select {
+                min-width: 120px;
+                flex: 1;
+            }
+
+            .viz-placeholder {
+                padding: 10px;
+            }
+
+            .viz-placeholder-icon {
+                font-size: 36px;
+            }
+
+            .header-controls {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="header-logo">
+            <div class="header-title">Process Visualization Dashboard</div>
+        </div>
+        <div class="header-controls">
+            <div class="current-time" id="currentTime"></div>
+            <button class="viz-btn btn-secondary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="viz-controls">
+            <select class="viz-select" id="processTypeSelect">
+                <option value="">Select a process type...</option>
+                {% for image in images %}
+                    <option value="{{ image }}">{{ image }}</option>
+                {% endfor %}
+            </select>
+            <button class="viz-btn btn-primary" id="visualizeBtn" disabled>
+                <i class="fas fa-chart-line"></i> Visualize
+            </button>
+        </div>
+        
+        <div class="viz-grid" id="vizGrid">
+            <div class="viz-placeholder">
+                <div class="viz-placeholder-icon">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+                <p>No visualizations created yet</p>
+                <p>Please select a process type and click "Visualize"</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ProcessVisualizer {
+            constructor() {
+                this.visualizations = [];
+                this.currentProcessType = null;
+                this.initElements();
+                this.setupEventListeners();
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            }
+
+            initElements() {
+                this.processTypeSelect = document.getElementById('processTypeSelect');
+                this.visualizeBtn = document.getElementById('visualizeBtn');
+                this.vizGrid = document.getElementById('vizGrid');
+                this.refreshBtn = document.getElementById('refreshBtn');
+                this.currentTimeElement = document.getElementById('currentTime');
+            }
+
+            updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                this.currentTimeElement.textContent = timeString;
+            }
+
+            setupEventListeners() {
+                this.processTypeSelect.addEventListener('change', (e) => {
+                    this.currentProcessType = e.target.value;
+                    this.visualizeBtn.disabled = !this.currentProcessType;
+                });
+
+                this.visualizeBtn.addEventListener('click', () => {
+                    if (this.currentProcessType) {
+                        this.updateAllVisualizations(this.currentProcessType);
+                    }
+                });
+
+                this.refreshBtn.addEventListener('click', () => {
+                    this.renderVisualizations();
+                    this.showNotification('Visualizations refreshed');
+                });
+            }
+
+            updateAllVisualizations(type) {
+                this.visualizations = [];
+                
+                const visualizationFiles = [
+                    "actual_vs_predicted.png", 
+                    "qq_plot.png",
+                    "residuals.png",
+                    "solvent_effect.png"
+                ];
+
+                visualizationFiles.forEach((fileName, index) => {
+                    const vizData = {
+                        id: Date.now() + index,
+                        type: type,
+                        title: `${this.getProcessTitle(type)} Visualization ${index + 1}`,
+                        imageUrl: `static/images/${type}/${fileName}`,
+                        createdAt: new Date().toLocaleTimeString()
+                    };
+                    this.visualizations.push(vizData);
+                });
+                
+                this.renderVisualizations();
+                this.showNotification(`Updated all visualizations with ${this.getProcessTitle(type)}`);
+            }
+
+            getProcessTitle(type) {
+                return type.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            renderVisualizations() {
+                this.vizGrid.innerHTML = '';
+                
+                if (this.visualizations.length === 0) {
+                    this.vizGrid.innerHTML = `
+                        <div class="viz-placeholder">
+                            <div class="viz-placeholder-icon">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <p>No visualizations created yet</p>
+                            <p>Please select a process type and click "Visualize"</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.visualizations.forEach(viz => {
+                    const vizCard = document.createElement('div');
+                    vizCard.className = 'viz-card';
+                    vizCard.innerHTML = `
+                        <div class="viz-card-header">
+                            <div class="viz-card-title">${viz.title}</div>
+                            <div class="viz-card-timestamp">${viz.createdAt}</div>
+                        </div>
+                        <div class="viz-card-body">
+                            <img src="${viz.imageUrl}" class="viz-card-image" alt="${viz.title}">
+                        </div>
+                        <div class="viz-card-actions">
+                            <button class="viz-action-btn" data-action="view" data-viz-id="${viz.id}">
+                                <i class="fas fa-expand"></i> View
+                            </button>
+                            <button class="viz-action-btn" data-action="export" data-viz-id="${viz.id}">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    `;
+                    
+                    vizCard.querySelector('.viz-card-body').addEventListener('click', () => {
+                        this.showFullscreenImage(viz.imageUrl, viz.title);
+                    });
+                    
+                    vizCard.querySelectorAll('.viz-action-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const action = e.currentTarget.dataset.action;
+                            const vizId = parseInt(e.currentTarget.dataset.vizId);
+                            this.handleVizAction(vizId, action);
+                        });
+                    });
+                    
+                    this.vizGrid.appendChild(vizCard);
+                });
+            }
+
+            handleVizAction(vizId, action) {
+                const viz = this.visualizations.find(v => v.id === vizId);
+                if (!viz) return;
+                
+                switch(action) {
+                    case 'view':
+                        this.showFullscreenImage(viz.imageUrl, viz.title);
+                        break;
+                    case 'export':
+                        this.downloadImage(viz.imageUrl, viz.title);
+                        break;
+                }
+            }
+
+            showFullscreenImage(imageUrl, title) {
+                const viewer = document.createElement('div');
+                viewer.className = 'viz-fullscreen';
+                viewer.innerHTML = `
+                    <div class="viz-fullscreen-close">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <img src="${imageUrl}" class="viz-fullscreen-image" alt="${title}">
+                    <div class="viz-fullscreen-controls">
+                        <button class="viz-fullscreen-btn" id="downloadFullscreen">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="viz-fullscreen-btn" id="closeFullscreen">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(viewer);
+                
+                const closeViewer = () => viewer.remove();
+                
+                viewer.querySelector('.viz-fullscreen-close').addEventListener('click', closeViewer);
+                viewer.querySelector('#closeFullscreen').addEventListener('click', closeViewer);
+                
+                viewer.querySelector('#downloadFullscreen').addEventListener('click', () => {
+                    this.downloadImage(imageUrl, title);
+                });
+            }
+
+            downloadImage(imageUrl, fileName) {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = fileName || 'process-visualization';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                this.showNotification('Image downloaded');
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new ProcessVisualizer();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const logo = document.querySelector('img.header-logo');
+            if (logo) {
+                logo.addEventListener('click', function() {
+                    window.location.href = window.location.origin + '/';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

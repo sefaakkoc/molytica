@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Model Karşılaştırma</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f0f0f0;
+      --bg-tertiary: #e0e0e0;
+      --text-primary: #000000;
+      --text-secondary: #333333;
+      --border-color: #cccccc;
+      --primary: #000000;
+      --success: #000000;
+      --warning: #333333;
+      --danger: #666666;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--bg-primary);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      height: 36px;
+      width: auto;
+      cursor: pointer;
+    }
+
+    #clock {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--primary);
+      padding: 4px 8px;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    .selector {
+      background: var(--bg-secondary);
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mode-toggle {
+      display: flex;
+      background: var(--bg-tertiary);
+      margin-bottom: 15px;
+    }
+
+    .mode-btn {
+      padding: 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.9rem;
+      border: 1px solid var(--border-color);
+      margin: 0 -1px;
+    }
+
+    .mode-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .select-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 80px;
+      gap: 10px;
+    }
+
+    select, button {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      width: 100%;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    .compare-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .model-card {
+      background: var(--bg-secondary);
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+    }
+
+    .model-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      color: white;
+      background: var(--primary);
+      font-weight: 500;
+    }
+
+    .badge.best {
+      background: var(--success);
+    }
+
+    .badge.good {
+      background: var(--primary);
+    }
+
+    .badge.average {
+      background: var(--warning);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 280px;
+      margin: 20px 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .chart-error {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--danger);
+      border: 1px dashed var(--border-color);
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 15px;
+    }
+
+    .tab {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+      border-bottom: none;
+      margin-right: 5px;
+    }
+
+    .tab.active {
+      font-weight: bold;
+      border: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--bg-primary);
+      margin-bottom: -1px;
+    }
+
+    .tab-content {
+      display: none;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      padding: 15px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .spec-item {
+      background: var(--bg-tertiary);
+      padding: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      border: 1px solid var(--border-color);
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    th {
+      background: var(--bg-tertiary);
+      font-weight: 500;
+    }
+
+    .winner {
+      background: var(--primary);
+      color: white;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      display: inline-block;
+    }
+
+    .comparison-info {
+      background: var(--bg-tertiary);
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .detailed-info {
+      background: var(--bg-tertiary);
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .detailed-info h3 {
+      margin: 15px 0 10px 0;
+      color: var(--primary);
+    }
+
+    .detailed-info h3:first-child {
+      margin-top: 0;
+    }
+
+    .detailed-info ul, .detailed-info ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .detailed-info p {
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    .error-message {
+      text-align: center;
+      padding: 20px;
+      color: var(--danger);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .select-container {
+        grid-template-columns: 1fr;
+      }
+
+      #model-2-container {
+        grid-column: 1;
+      }
+
+      header {
+        padding: 10px 15px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .logo {
+        height: 30px;
+      }
+
+      .chart-container {
+        height: 250px;
+      }
+
+      .spec-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+      }
+
+      .tab {
+        display: inline-block;
+      }
+
+      .model-card > div {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" onclick="window.location.href='/'">
+      <h1 style="font-size: 1.2rem;">AI Model Karşılaştırma</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div id="clock"></div>
+      <button class="lang-btn">TR</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="loading" class="loading">
+      <i class="fas fa-spinner fa-spin fa-2x" style="margin-bottom: 15px;"></i><br>
+      <span>XML verileri yükleniyor...</span>
+    </div>
+    
+    <div id="error-message" class="error-message" style="display: none;">
+      <i class="fas fa-exclamation-triangle"></i> <span id="error-text">XML dosyası yüklenirken hata oluştu</span>
+    </div>
+
+    <section id="app-content" class="selector" style="display: none;">
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="single">Tekli</button>
+        <button class="mode-btn" data-mode="compare">Karşılaştır</button>
+      </div>
+      <div class="select-container">
+        <div>
+          <select id="model-1">
+            <option value="">Model seçin...</option>
+          </select>
+        </div>
+        <div id="model-2-container" style="display: none;">
+          <select id="model-2">
+            <option value="">Model seçin...</option>
+          </select>
+        </div>
+        <button class="compare-btn" id="compare-btn"><i class="fas fa-chart-bar"></i> Göster</button>
+      </div>
+    </section>
+
+    <div id="results" style="display: none;">
+      <div class="model-card" id="model-card-1">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="model-name">Model Adı</div>
+          <div class="badge best">Değerlendirme</div>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Model açıklaması</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Doğruluk</div>
+            <div style="color: var(--success); font-weight: bold; font-size: 1.1rem;">0%</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Hız</div>
+            <div style="color: var(--primary); font-weight: bold; font-size: 1.1rem;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-card" id="model-card-2" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="model-name">Model Adı</div>
+          <div class="badge good">Değerlendirme</div>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Model açıklaması</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Doğruluk</div>
+            <div style="color: var(--success); font-weight: bold; font-size: 1.1rem;">0%</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Hız</div>
+            <div style="color: var(--primary); font-weight: bold; font-size: 1.1rem;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="chart"></canvas>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="specs">Özellikler</div>
+        <div class="tab" data-tab="bench">Testler</div>
+        <div class="tab" data-tab="compare" id="compare-tab" style="display: none;">Karşılaştırma</div>
+        <div class="tab" data-tab="details">Detaylı Bilgi</div>
+      </div>
+
+      <div class="tab-content active" id="specs-content">
+        <div class="spec-grid" id="specs-grid">
+          <div class="spec-item">
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">Model Boyutu</div>
+            <div>-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="bench-content">
+        <table id="benchmarks-table">
+          <thead>
+            <tr><th>Test</th><th>Skor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>-</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-content" id="compare-content">
+        <table id="comparison-table">
+          <thead>
+            <tr><th>Özellik</th><th id="m1-name">Model 1</th><th id="m2-name">Model 2</th><th>Kazanan</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        
+        <div class="comparison-info" id="comparison-summary">
+          <h3 style="margin-bottom: 10px;">Karşılaştırma Sonucu</h3>
+          <p id="summary-text">Karşılaştırma yapmak için iki model seçin.</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="details-content">
+        <div class="detailed-info" id="detailed-info-1"></div>
+        <div class="detailed-info" id="detailed-info-2" style="display: none;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>© 2025 Molytica Model Analyser</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const translations = {
+      tr: {
+        appTitle: "AI Model Karşılaştırma",
+        singleMode: "Tekli",
+        compareMode: "Karşılaştır",
+        selectModel: "Model seçin...",
+        showButton: "Göster",
+        specs: "Özellikler",
+        benchmarks: "Testler",
+        compare: "Karşılaştırma",
+        details: "Detaylı Bilgi",
+        accuracy: "Doğruluk",
+        speed: "Hız",
+        footerText: "© 2025 Molytica Chemical Analyser"
+      },
+      en: {
+        appTitle: "AI Model Comparison",
+        singleMode: "Single",
+        compareMode: "Compare",
+        selectModel: "Select model...",
+        showButton: "Show",
+        specs: "Specifications",
+        benchmarks: "Benchmarks",
+        compare: "Comparison",
+        details: "Detailed Info",
+        accuracy: "Accuracy",
+        speed: "Speed",
+        footerText: "© 2025 Molytica Chemical Analyser"
+      }
+    };
+
+    // Mevcut dil
+    let currentLang = 'tr';
+
+    // Dil değiştirme fonksiyonu
+    function switchLanguage() {
+      currentLang = currentLang === 'tr' ? 'en' : 'tr';
+      updateLanguage();
+      
+      // Dil butonunu güncelle
+      const langBtn = document.querySelector('.lang-btn');
+      if (langBtn) {
+        langBtn.textContent = currentLang.toUpperCase();
+      }
+      
+      // Eğer modeller yüklenmişse mevcut görünümü yenile
+      const activeMode = document.querySelector('.mode-btn.active')?.dataset.mode;
+      const model1Select = document.getElementById('model-1');
+      const model2Select = document.getElementById('model-2');
+      
+      if (activeMode === 'compare' && model1Select?.value && model2Select?.value) {
+        compareModels(model1Select.value, model2Select.value);
+      } else if (model1Select?.value) {
+        showModel(model1Select.value);
+      }
+    }
+
+    // Dili güncelleme fonksiyonu
+    function updateLanguage() {
+      const t = translations[currentLang];
+      
+      // Header
+      const appTitle = document.querySelector('header h1');
+      if (appTitle) appTitle.textContent = t.appTitle;
+      
+      // Mode buttons
+      const modeButtons = document.querySelectorAll('.mode-btn');
+      if (modeButtons[0]) modeButtons[0].textContent = t.singleMode;
+      if (modeButtons[1]) modeButtons[1].textContent = t.compareMode;
+      
+      // Select placeholder'larını güncelle
+      updateSelectPlaceholders();
+      
+      // Compare button
+      const compareBtn = document.getElementById('compare-btn');
+      if (compareBtn) {
+        compareBtn.innerHTML = `<i class="fas fa-chart-bar"></i> ${t.showButton}`;
+      }
+      
+      // Tabs
+      const tabs = document.querySelectorAll('.tab');
+      if (tabs[0]) tabs[0].textContent = t.specs;
+      if (tabs[1]) tabs[1].textContent = t.benchmarks;
+      if (tabs[2]) tabs[2].textContent = t.compare;
+      if (tabs[3]) tabs[3].textContent = t.details;
+      
+      // Footer
+      const footer = document.querySelector('footer div');
+      if (footer) footer.textContent = t.footerText;
+      
+      // Model card içindeki sabit metinleri güncelle
+      updateModelCardLabels();
+    }
+
+    // Select placeholder'larını güncelleme fonksiyonu
+    function updateSelectPlaceholders() {
+      const t = translations[currentLang];
+      const selectElements = [
+        document.getElementById('model-1'),
+        document.getElementById('model-2')
+      ];
+      
+      selectElements.forEach(select => {
+        if (select && select.options[0]) {
+          select.options[0].textContent = t.selectModel;
+        }
+      });
+    }
+
+    // Model card etiketlerini güncelleme fonksiyonu
+    function updateModelCardLabels() {
+      const t = translations[currentLang];
+      
+      // Accuracy ve Speed etiketlerini güncelle
+      const cards = document.querySelectorAll('.model-card');
+      cards.forEach(card => {
+        const accuracyLabel = card.querySelector('div:nth-child(3) > div:nth-child(1) > div:first-child');
+        const speedLabel = card.querySelector('div:nth-child(3) > div:nth-child(2) > div:first-child');
+        
+        if (accuracyLabel) accuracyLabel.textContent = t.accuracy;
+        if (speedLabel) speedLabel.textContent = t.speed;
+      });
+    }
+
+
+    function initApp() {
+      // Saat güncelleme
+      const langBtn = document.querySelector('.lang-btn');
+      if (langBtn) {
+        langBtn.addEventListener('click', switchLanguage);
+      }
+
+
+      function updateClock() {
+        const clock = document.getElementById('clock');
+        if (clock) {
+          clock.textContent = new Date().toLocaleTimeString('tr-TR');
+        }
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // Model verilerini saklamak için nesne
+      const models = {};
+
+      // XML dosyasını yükle
+      loadXmlData();
+
+      // XML dosyasını yükleme fonksiyonu
+      function loadXmlData() {
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error-message');
+        const appContent = document.getElementById('app-content');
+        
+        fetch('{{ url_for("static", filename="xml_data/data.xml") }}')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+          })
+          .then(xmlString => {
+            // XML'i parse et
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            
+            // Hata kontrolü
+            const parserErrors = xmlDoc.getElementsByTagName("parsererror");
+            if (parserErrors.length > 0) {
+              throw new Error("XML parse hatası: " + parserErrors[0].textContent);
+            }
+            
+            // Modelleri işle
+            processXmlModels(xmlDoc);
+            
+            // UI'yı göster
+            loadingElement.style.display = 'none';
+            appContent.style.display = 'block';
+            
+            // İlk modeli göster
+            const firstModelId = Object.keys(models)[0];
+            if (firstModelId) {
+              document.getElementById('model-1').value = firstModelId;
+              showModel(firstModelId);
+            }
+          })
+          .catch(error => {
+            console.error('XML yükleme hatası:', error);
+            loadingElement.style.display = 'none';
+            errorElement.style.display = 'block';
+            document.getElementById('error-text').textContent = 
+              `XML dosyası yüklenirken hata oluştu: ${error.message}`;
+          });
+      }
+
+      // XML'den model verilerini işleme fonksiyonu
+      function processXmlModels(xmlDoc) {
+        const modelNodes = xmlDoc.getElementsByTagName('model');
+        const model1Select = document.getElementById('model-1');
+        const model2Select = document.getElementById('model-2');
+        
+        // Model seçim listelerini temizle
+        model1Select.innerHTML = '<option value="">Model seçin...</option>';
+        model2Select.innerHTML = '<option value="">Model seçin...</option>';
+        
+        // Tüm modelleri işle
+        for (let i = 0; i < modelNodes.length; i++) {
+          const modelNode = modelNodes[i];
+          const modelId = modelNode.getAttribute('id') || `model_${i+1}`;
+          
+          // Model verilerini çıkar
+          const modelData = {
+            id: modelId,
+            name: getXmlNodeText(modelNode, 'name') || `Model ${i+1}`,
+            desc: getXmlNodeText(modelNode, 'description') || getXmlNodeText(modelNode, 'desc') || 'Açıklama yok',
+            detailed_description: getXmlNodeText(modelNode, 'detailed_description') || '<p>Detaylı bilgi bulunmamaktadır.</p>',
+            accuracy: parseFloat(getXmlNodeText(modelNode, 'accuracy')) || 0,
+            speed: parseFloat(getXmlNodeText(modelNode, 'speed')) || 0,
+            specs: {},
+            benchmarks: {},
+            pros: [],
+            cons: []
+          };
+          
+          // Özellikleri çıkar
+          const specNodes = modelNode.getElementsByTagName('spec');
+          for (let j = 0; j < specNodes.length; j++) {
+            const spec = specNodes[j];
+            const specName = spec.getAttribute('name') || `Özellik ${j+1}`;
+            modelData.specs[specName] = spec.textContent.trim() || '-';
+          }
+          
+          // Test sonuçlarını çıkar
+          const benchNodes = modelNode.getElementsByTagName('benchmark');
+          for (let j = 0; j < benchNodes.length; j++) {
+            const bench = benchNodes[j];
+            const benchName = bench.getAttribute('name') || `Test ${j+1}`;
+            modelData.benchmarks[benchName] = bench.textContent.trim() || '-';
+          }
+          
+          // Artıları çıkar
+          const proNodes = modelNode.getElementsByTagName('pro');
+          for (let j = 0; j < proNodes.length; j++) {
+            modelData.pros.push(proNodes[j].textContent.trim());
+          }
+          
+          // Eksileri çıkar
+          const conNodes = modelNode.getElementsByTagName('con');
+          for (let j = 0; j < conNodes.length; j++) {
+            modelData.cons.push(conNodes[j].textContent.trim());
+          }
+          
+          // Performans dizisini oluştur
+          modelData.perf = [
+            modelData.accuracy,
+            modelData.accuracy - 3,
+            modelData.accuracy - 1,
+            modelData.speed * 2
+          ];
+          
+          // Modeli kaydet
+          models[modelId] = modelData;
+          
+          // Seçim listelerine ekle
+          const option1 = document.createElement('option');
+          option1.value = modelId;
+          option1.textContent = modelData.name;
+          model1Select.appendChild(option1);
+          
+          const option2 = document.createElement('option');
+          option2.value = modelId;
+          option2.textContent = modelData.name;
+          model2Select.appendChild(option2);
+        }
+      }
+      
+      // XML düğümünden metin alma yardımcı fonksiyonu
+      function getXmlNodeText(parentNode, tagName) {
+        const nodes = parentNode.getElementsByTagName(tagName);
+        return nodes.length > 0 ? nodes[0].textContent.trim() : null;
+      }
+
+      // Mod değiştirme
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          const model2Container = document.getElementById('model-2-container');
+          const compareTab = document.getElementById('compare-tab');
+          
+          if (model2Container) model2Container.style.display = 
+            btn.dataset.mode === 'compare' ? 'block' : 'none';
+          
+          if (compareTab) compareTab.style.display = 
+            btn.dataset.mode === 'compare' ? 'block' : 'none';
+        });
+      });
+
+      // Karşılaştırma butonu
+      const compareBtn = document.getElementById('compare-btn');
+      if (compareBtn) {
+        compareBtn.addEventListener('click', () => {
+          try {
+            const mode = document.querySelector('.mode-btn.active')?.dataset.mode;
+            if (!mode) return;
+
+            const model1Select = document.getElementById('model-1');
+            if (!model1Select) return;
+            
+            const model1 = model1Select.value;
+            if (!model1) {
+              alert("Lütfen en az bir model seçin!");
+              return;
+            }
+            
+            if (mode === 'compare') {
+              const model2Select = document.getElementById('model-2');
+              if (!model2Select) return;
+              
+              const model2 = model2Select.value;
+              if (!model2) {
+                alert("Karşılaştırma için ikinci bir model seçin!");
+                return;
+              }
+              if (model1 === model2) {
+                alert("Farklı modeller seçin!");
+                return;
+              }
+              compareModels(model1, model2);
+            } else {
+              showModel(model1);
+            }
+          } catch (error) {
+            console.error("Karşılaştırma hatası:", error);
+            alert("Bir hata oluştu, lütfen tekrar deneyin.");
+          }
+        });
+      }
+
+      // Model gösterme fonksiyonu
+      function showModel(modelId) {
+        const model = models[modelId];
+        if (!model) return;
+
+        const card = document.getElementById('model-card-1');
+        if (!card) return;
+        
+        // Kartı güncelle
+        const nameElement = card.querySelector('.model-name');
+        const descElement = card.querySelector('div:nth-child(2)');
+        const accuracyElement = card.querySelector('div:nth-child(3) > div:nth-child(1) > div:nth-child(2)');
+        const speedElement = card.querySelector('div:nth-child(3) > div:nth-child(2) > div:nth-child(2)');
+        const badge = card.querySelector('.badge');
+        
+        if (nameElement) nameElement.textContent = model.name;
+        if (descElement) descElement.textContent = model.desc;
+        if (accuracyElement) accuracyElement.textContent = model.accuracy + '%';
+        if (speedElement) speedElement.textContent = 
+          model.speed >= 45 ? 'Hızlı' : model.speed >= 35 ? 'Orta' : 'Yavaş';
+        
+        // Badge güncelle
+        if (badge) {
+          badge.className = 'badge ' + (model.accuracy >= 90 ? 'best' : model.accuracy >= 85 ? 'good' : 'average');
+          badge.textContent = model.accuracy >= 90 ? 'En İyi' : model.accuracy >= 85 ? 'İyi' : 'Orta';
+        }
+        
+        // Özellikler sekmesini güncelle
+        const specsContent = document.getElementById('specs-content');
+        if (specsContent) {
+          let specsHtml = '';
+          for (const [key, value] of Object.entries(model.specs)) {
+            specsHtml += `
+              <div class="spec-item">
+                <div style="font-size:0.8rem;color:var(--text-secondary)">${key}</div>
+                <div>${value}</div>
+              </div>
+            `;
+          }
+          specsContent.innerHTML = `<div class="spec-grid">${specsHtml}</div>`;
+        }
+        
+        // Testler sekmesini güncelle
+        const benchContent = document.getElementById('bench-content');
+        if (benchContent) {
+          let benchHtml = '<table><thead><tr><th>Test</th><th>Skor</th></tr></thead><tbody>';
+          for (const [bench, score] of Object.entries(model.benchmarks)) {
+            benchHtml += `<tr><td>${bench}</td><td>${score}</td></tr>`;
+          }
+          benchHtml += '</tbody></table>';
+          benchContent.innerHTML = benchHtml;
+        }
+        
+        // Detaylı bilgi sekmesini güncelle
+        const detailsContent = document.getElementById('detailed-info-1');
+        if (detailsContent) {
+          detailsContent.innerHTML = model.detailed_description;
+        }
+        
+        // İkinci detaylı bilgi panelini gizle
+        const details2 = document.getElementById('detailed-info-2');
+        if (details2) details2.style.display = 'none';
+        
+        // Grafik oluştur
+        renderChart([model]);
+        
+        // İlk sekmeyi aktif et
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        const firstTab = document.querySelector('.tab');
+        const firstTabContent = document.getElementById('specs-content');
+        
+        if (firstTab) firstTab.classList.add('active');
+        if (firstTabContent) firstTabContent.classList.add('active');
+        
+        // Sonuçları göster
+        document.getElementById('results').style.display = 'block';
+      }
+
+      // Model karşılaştırma fonksiyonu
+      function compareModels(model1Id, model2Id) {
+        const model1 = models[model1Id];
+        const model2 = models[model2Id];
+        if (!model1 || !model2) return;
+        
+        // Model kartlarını güncelle
+        updateModelCard('model-card-1', model1);
+        updateModelCard('model-card-2', model2);
+        
+        const modelCard2 = document.getElementById('model-card-2');
+        if (modelCard2) modelCard2.style.display = 'block';
+        
+        // Karşılaştırma tablosunu güncelle
+        const m1Name = document.getElementById('m1-name');
+        const m2Name = document.getElementById('m2-name');
+        
+        if (m1Name) m1Name.textContent = model1.name;
+        if (m2Name) m2Name.textContent = model2.name;
+        
+        // Karşılaştırma tablosu oluştur
+        const compareContent = document.getElementById('compare-content');
+        if (compareContent) {
+          let compareHtml = `
+            <thead>
+              <tr><th>Özellik</th><th>${model1.name}</th><th>${model2.name}</th><th>Kazanan</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Doğruluk</td>
+                <td>${model1.accuracy}%</td>
+                <td>${model2.accuracy}%</td>
+                <td><span class="winner">${model1.accuracy > model2.accuracy ? 
+                  model1.name + ' +' + (model1.accuracy - model2.accuracy) + '%' : 
+                  model2.name + ' +' + (model2.accuracy - model1.accuracy) + '%'}</span></td>
+              </tr>
+              <tr>
+                <td>Hız</td>
+                <td>${model1.speed >= 45 ? 'Hızlı' : model1.speed >= 35 ? 'Orta' : 'Yavaş'}</td>
+                <td>${model2.speed >= 45 ? 'Hızlı' : model2.speed >= 35 ? 'Orta' : 'Yavaş'}</td>
+                <td><span class="winner">${model1.speed > model2.speed ? model1.name : model2.name}</span></td>
+              </tr>
+          `;
+          
+          // Ortak özellikleri karşılaştır
+          const commonSpecs = new Set([...Object.keys(model1.specs), ...Object.keys(model2.specs)]);
+          for (const spec of commonSpecs) {
+            const value1 = model1.specs[spec] || '-';
+            const value2 = model2.specs[spec] || '-';
+            
+            // Sayısal değerleri karşılaştır
+            if (!isNaN(parseFloat(value1)) && !isNaN(parseFloat(value2))) {
+              const num1 = parseFloat(value1);
+              const num2 = parseFloat(value2);
+              const diff = Math.abs(num1 - num2);
+              
+              compareHtml += `
+                <tr>
+                  <td>${spec}</td>
+                  <td>${value1}</td>
+                  <td>${value2}</td>
+                  <td><span class="winner">${num1 > num2 ? 
+                    model1.name + ' +' + diff.toFixed(1) : 
+                    num2 > num1 ? model2.name + ' +' + diff.toFixed(1) : 'Eşit'}</span></td>
+                </tr>
+              `;
+            } else {
+              // Sayısal olmayan değerler
+              compareHtml += `
+                <tr>
+                  <td>${spec}</td>
+                  <td>${value1}</td>
+                  <td>${value2}</td>
+                  <td>${value1 === value2 ? 'Eşit' : 'Farklı'}</td>
+                </tr>
+              `;
+            }
+          }
+          
+          compareHtml += `</tbody>`;
+          compareContent.innerHTML = compareHtml;
+          
+          // Özet bilgi oluştur
+          let summary = "";
+          if (model1.accuracy > model2.accuracy && model1.speed > model2.speed) {
+            summary = `${model1.name}, ${model2.name}'a göre hem daha doğru hem de daha hızlı.`;
+          } else if (model1.accuracy > model2.accuracy) {
+            summary = `${model1.name} daha doğru ancak ${model2.name} daha hızlı.`;
+          } else if (model2.accuracy > model1.accuracy) {
+            summary = `${model2.name} daha doğru ancak ${model1.name} daha hızlı.`;
+          } else {
+            summary = `İki modelin doğruluk ve hız performansları benzer.`;
+          }
+          
+          // Artıları/Eksileri ekle
+          summary += `<div style="margin-top:15px;"><h4>${model1.name} Artıları:</h4><ul>`;
+          model1.pros.forEach(pro => {
+            summary += `<li>${pro}</li>`;
+          });
+          summary += `</ul><h4>${model1.name} Eksileri:</h4><ul>`;
+          model1.cons.forEach(con => {
+            summary += `<li>${con}</li>`;
+          });
+          summary += `</ul><h4>${model2.name} Artıları:</h4><ul>`;
+          model2.pros.forEach(pro => {
+            summary += `<li>${pro}</li>`;
+          });
+          summary += `</ul><h4>${model2.name} Eksileri:</h4><ul>`;
+          model2.cons.forEach(con => {
+            summary += `<li>${con}</li>`;
+          });
+          summary += `</ul></div>`;
+          
+          const summaryText = document.getElementById('summary-text');
+          if (summaryText) summaryText.innerHTML = summary;
+        }
+        
+        // Detaylı bilgi sekmesini güncelle
+        const details1 = document.getElementById('detailed-info-1');
+        const details2 = document.getElementById('detailed-info-2');
+        
+        if (details1) details1.innerHTML = model1.detailed_description;
+        if (details2) {
+          details2.innerHTML = model2.detailed_description;
+          details2.style.display = 'block';
+        }
+        
+        // Grafik oluştur
+        renderChart([model1, model2]);
+        
+        // Karşılaştırma sekmesine geç
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        const compareTab = document.getElementById('compare-tab');
+        const compareTabContent = document.getElementById('compare-content');
+        
+        if (compareTab) compareTab.classList.add('active');
+        if (compareTabContent) compareTabContent.classList.add('active');
+        
+        // Sonuçları göster
+        document.getElementById('results').style.display = 'block';
+      }
+
+      // Model kartı güncelleme fonksiyonu
+      function updateModelCard(cardId, model) {
+        const card = document.getElementById(cardId);
+        if (!card || !model) return;
+
+        const nameElement = card.querySelector('.model-name');
+        const descElement = card.querySelector('div:nth-child(2)');
+        const accuracyElement = card.querySelector('div:nth-child(3) > div:nth-child(1) > div:nth-child(2)');
+        const speedElement = card.querySelector('div:nth-child(3) > div:nth-child(2) > div:nth-child(2)');
+        const badge = card.querySelector('.badge');
+        
+        if (nameElement) nameElement.textContent = model.name;
+        if (descElement) descElement.textContent = model.desc;
+        if (accuracyElement) accuracyElement.textContent = model.accuracy + '%';
+        if (speedElement) speedElement.textContent = 
+          model.speed >= 45 ? 'Hızlı' : model.speed >= 35 ? 'Orta' : 'Yavaş';
+        
+        // Badge güncelle
+        if (badge) {
+          badge.className = 'badge ' + (model.accuracy >= 90 ? 'best' : model.accuracy >= 85 ? 'good' : 'average');
+          badge.textContent = model.accuracy >= 90 ? 'En İyi' : model.accuracy >= 85 ? 'İyi' : 'Orta';
+        }
+      }
+
+      // Grafik oluşturma fonksiyonu
+      function renderChart(models) {
+        const canvas = document.getElementById('chart');
+        if (!canvas || !models || models.length === 0) return;
+
+        // Canvas'ı temizle
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        // Eski grafiği temizle
+        if (window.chart instanceof Chart) {
+          window.chart.destroy();
+        }
+
+        // Veri hazırlığı
+        const labels = ['Doğruluk', 'Kesinlik', 'Hassasiyet', 'Hız'];
+        const colors = ['#000000', '#333333', '#666666', '#999999'];
+        
+        const datasets = models.map((model, i) => ({
+          label: model.name,
+          data: model.perf,
+          backgroundColor: `${colors[i]}20`,
+          borderColor: colors[i],
+          borderWidth: 2,
+          pointBackgroundColor: colors[i],
+          pointRadius: 4
+        }));
+
+        // Grafik oluşturma
+        try {
+          window.chart = new Chart(canvas.getContext('2d'), {
+            type: 'radar',
+            data: { labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                r: {
+                  min: 0,
+                  max: 100,
+                  ticks: { 
+                    stepSize: 20,
+                    backdropColor: 'transparent'
+                  },
+                  angleLines: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                  },
+                  grid: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                  },
+                  pointLabels: {
+                    font: {
+                      size: 12
+                    }
+                  }
+                }
+              },
+              plugins: {
+                legend: {
+                  position: 'top',
+                  labels: {
+                    boxWidth: 12,
+                    padding: 20
+                  }
+                }
+              }
+            }
+          });
+        } catch (error) {
+          console.error("Grafik hatası:", error);
+          canvas.style.display = 'none';
+          const container = document.querySelector('.chart-container');
+          if (container) {
+            container.innerHTML = '<div class="chart-error">Grafik oluşturulamadı</div>';
+          }
+        }
+      }
+
+      // Sekme geçişleri
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          
+          const tabContent = document.getElementById(tab.dataset.tab + '-content');
+          if (tabContent) tabContent.classList.add('active');
+          
+          // For comparison view, show both detailed info sections
+          if (tab.dataset.tab === 'details' && document.querySelector('.mode-btn.active').dataset.mode === 'compare') {
+            document.getElementById('detailed-info-1').style.display = 'block';
+            document.getElementById('detailed-info-2').style.display = 'block';
+          } else {
+            document.getElementById('detailed-info-1').style.display = 'block';
+            document.getElementById('detailed-info-2').style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Uygulamayı başlat
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

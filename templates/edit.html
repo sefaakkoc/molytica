@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSV Veri Düzenleyici</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #fff;
+      color: #000;
+      height: 100%;
+    }
+
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background-color: #fff;
+      border-bottom: 2px solid #000;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 1000;
+      user-select: none;
+      justify-content: space-between;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      height: 60px;
+      cursor: pointer;
+    }
+
+    .app-header h1 {
+      font-weight: 700;
+      font-size: 26px;
+      color: #000;
+      margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    #clock {
+      font-size: 22px;
+      color: #000;
+    }
+
+    .language-switcher {
+      background: transparent;
+      border: 2px solid #000;
+      padding: 10px 20px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #000;
+    }
+
+    .language-switcher:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .app-main {
+      padding: 120px 8% 60px 8%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    button {
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 14px 36px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      min-width: 120px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #555;
+    }
+
+    button:disabled {
+      background-color: #BEC8D2;
+      color: #7a7d81;
+      cursor: not-allowed;
+    }
+
+    .table-section {
+      background-color: #fff;
+      border: 2px solid #000;
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .table-section h2 {
+      font-weight: 700;
+      font-size: 24px;
+      color: #000;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+      background-color: #fff;
+      color: #000;
+    }
+
+    thead th {
+      padding: 14px 24px;
+      font-weight: 700;
+      color: #000;
+      border-bottom: 2px solid #000;
+      text-align: center;
+    }
+
+    tbody tr {
+      background-color: #fff;
+      transition: background-color 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    tbody td {
+      padding: 16px 24px;
+      text-align: center;
+      border-bottom: 2px solid #000;
+    }
+
+    tbody td[contenteditable="true"] {
+      background-color: #fff;
+      border: 1px solid #000;
+      cursor: text;
+    }
+
+    tbody td[contenteditable="true"]:focus {
+      outline: none;
+      border-color: #000;
+      background-color: #fff;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: #000;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .action-btn:hover {
+      color: #555;
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border: 1px solid #c62828;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    .success-message {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      border: 1px solid #2e7d32;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    .table-section::-webkit-scrollbar {
+      height: 12px;
+      width: 12px;
+    }
+
+    .table-section::-webkit-scrollbar-thumb {
+      background-color: #000;
+    }
+
+    .table-section::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+
+    @media (max-width: 768px) {
+      .app-main {
+        padding: 80px 16px 60px 16px;
+      }
+      button {
+        width: 100%;
+        min-width: unset;
+      }
+      .toolbar {
+        flex-direction: column;
+        gap: 16px;
+      }
+      table {
+        min-width: 600px;
+      }
+      thead th, tbody td {
+        padding: 14px 12px;
+      }
+    }
+
+    td[contenteditable="true"] {
+      min-width: 100px;
+    }
+    .editing {
+      background-color: #fffde7 !important;
+      outline: 2px solid #2196F3 !important;
+    }
+    .action-btn.delete-btn {
+      color: #000;
+      font-size: 14px;
+      padding: 2px 6px;
+    }
+    .action-btn.delete-btn:hover {
+      color: #555;
+    }
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border: 1px solid #c62828;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    .success-message {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      border: 1px solid #2e7d32;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-content">
+    <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" />
+    <h1>CSV Veri Düzenleyici</h1>
+  </div>
+  <div class="header-right">
+    <div id="clock"></div>
+    <div class="language-switcher">Dil: TR</div>
+  </div>
+</header>
+
+<main class="app-main">
+  <section class="toolbar">
+    <button id="saveBtn">Sunucuya Kaydet</button>
+    <button id="undoBtn" disabled>Geri Al</button>
+    <button id="redoBtn" disabled>Yinele</button>
+    <button id="addRowBtn">Yeni Satır Ekle</button>
+  </section>
+
+  <section class="table-section">
+    <h2>Düzenlenen Veriler: <span id="filenameDisplay"></span></h2>
+    <div class="table-wrapper">
+      <table id="savedDataTable">
+        <thead><tr></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+class CSVEditor {
+  constructor() {
+    this.data = [];
+    this.headers = [];
+    this.undoStack = [];
+    this.redoStack = [];
+    this.currentEditCell = null;
+    this.filename = "{{ url_for('static', filename='datasets') }}/" + this.getFilenameFromUrl();
+    this.filename2 = this.getFilenameFromUrl();
+
+    this.init();
+  }
+
+  init() {
+    this.cacheDOM();
+    this.setupEventListeners();
+    this.loadFile();
+    this.setupClock();
+  }
+
+  getFilenameFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('models') || '';
+  }
+
+  cacheDOM() {
+    this.table = document.getElementById('savedDataTable');
+    this.tbody = this.table.querySelector('tbody');
+    this.thead = this.table.querySelector('thead tr');
+    this.saveBtn = document.getElementById('saveBtn');
+    this.undoBtn = document.getElementById('undoBtn');
+    this.redoBtn = document.getElementById('redoBtn');
+    this.addRowBtn = document.getElementById('addRowBtn');
+    this.filenameDisplay = document.getElementById('filenameDisplay');
+  }
+
+  setupEventListeners() {
+    this.saveBtn.addEventListener('click', () => this.saveToServer());
+    this.undoBtn.addEventListener('click', () => this.undo());
+    this.redoBtn.addEventListener('click', () => this.redo());
+    this.addRowBtn.addEventListener('click', () => this.addNewRow());
+    
+    document.addEventListener('click', (e) => {
+      if (this.currentEditCell && !this.currentEditCell.contains(e.target)) {
+        this.finishEditing();
+      }
+    });
+  }
+
+  async loadFile() {
+    if (!this.filename) {
+      this.showError('URL parametresinde dosya belirtilmedi. Örnek: ?models=dataset.csv');
+      return;
+    }
+
+    if (!this.filename.toLowerCase().endsWith('.csv')) {
+      this.showError('Sadece CSV dosyaları düzenlenebilir');
+      return;
+    }
+
+    this.filenameDisplay.textContent = this.filename;
+
+    try {
+      const response = await fetch(`${this.filename}`);
+      if (!response.ok) throw new Error('CSV dosyası yüklenemedi');
+      
+      const csvContent = await response.text();
+      this.parseCSV(csvContent);
+      this.renderTable();
+      this.showSuccess('CSV başarıyla yüklendi!');
+    } catch (error) {
+      this.showError(`Hata: ${error.message}`);
+    }
+  }
+
+  parseCSV(content) {
+    const lines = content.split('\n').filter(line => line.trim() !== '');
+    if (lines.length === 0) return;
+    
+    this.headers = this.parseCSVLine(lines[0]);
+    this.data = lines.slice(1).map(line => {
+      const values = this.parseCSVLine(line);
+      const row = {};
+      this.headers.forEach((header, i) => {
+        row[header] = values[i] || '';
+      });
+      return row;
+    });
+  }
+
+  parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    result.push(current.trim());
+    return result.map(item => item.replace(/^"|"$/g, ''));
+  }
+
+  renderTable() {
+    this.renderHeaders();
+    this.renderBody();
+    this.updateButtons();
+  }
+
+  renderHeaders() {
+    this.thead.innerHTML = this.headers.map(header => 
+      `<th>${header}</th>`
+    ).join('') + '<th>İşlemler</th>';
+  }
+
+  renderBody() {
+    const fragment = document.createDocumentFragment();
+    
+    this.data.forEach((row, rowIndex) => {
+      const tr = document.createElement('tr');
+      tr.dataset.rowId = rowIndex;
+      
+      this.headers.forEach(header => {
+        const td = document.createElement('td');
+        td.textContent = row[header];
+        td.dataset.column = header;
+        td.contentEditable = true;
+        
+        td.addEventListener('focus', () => {
+          this.currentEditCell = td;
+          td.classList.add('editing');
+          this.updateButtons();
+        });
+        
+        td.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.finishEditing();
+          }
+        });
+        
+        tr.appendChild(td);
+      });
+      
+      const actionTd = document.createElement('td');
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'action-btn delete-btn';
+      deleteBtn.innerHTML = '✖';
+      deleteBtn.title = 'Satırı sil';
+      deleteBtn.addEventListener('click', () => {
+        if (!this.currentEditCell) {
+          this.saveState();
+          this.data.splice(rowIndex, 1);
+          this.renderTable();
+        }
+      });
+      
+      actionTd.appendChild(deleteBtn);
+      tr.appendChild(actionTd);
+      
+      fragment.appendChild(tr);
+    });
+    
+    this.tbody.innerHTML = '';
+    this.tbody.appendChild(fragment);
+  }
+
+  addNewRow() {
+    this.saveState();
+    const newRow = {};
+    this.headers.forEach(header => {
+      newRow[header] = '';
+    });
+    this.data.push(newRow);
+    this.renderTable();
+    
+    const lastRow = this.tbody.lastChild;
+    if (lastRow) {
+      const firstCell = lastRow.querySelector('td');
+      if (firstCell) {
+        firstCell.focus();
+      }
+    }
+  }
+
+  finishEditing() {
+    if (this.currentEditCell) {
+      const rowIndex = parseInt(this.currentEditCell.parentElement.dataset.rowId);
+      const column = this.currentEditCell.dataset.column;
+      const newValue = this.currentEditCell.textContent.trim();
+      const oldValue = this.data[rowIndex][column];
+      
+      if (newValue !== oldValue) {
+        this.saveState();
+        this.data[rowIndex][column] = newValue;
+      }
+      
+      this.currentEditCell.classList.remove('editing');
+      this.currentEditCell = null;
+      this.updateButtons();
+    }
+  }
+
+  saveState() {
+    this.undoStack.push(JSON.stringify(this.data));
+    if (this.undoStack.length > 50) this.undoStack.shift();
+    this.redoStack = [];
+    this.updateButtons();
+  }
+
+  async saveToServer() {
+    if (this.data.length === 0 || this.currentEditCell) return;
+    
+    const csvContent = [
+      this.headers.join(','),
+      ...this.data.map(row => 
+        this.headers.map(header => {
+          const value = row[header];
+          return value.includes(',') ? `"${value}"` : value;
+        }).join(',')
+      )
+    ].join('\n');
+    
+    try {
+      const response = await fetch('/save-csv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          csv: csvContent,
+          filename: this.filename2 
+        })
+      });
+      
+      if (!response.ok) throw new Error('Sunucu hatası');
+      
+      const result = await response.json();
+      if (result.success) {
+        this.showSuccess(`CSV başarıyla kaydedildi: ${this.filename}`);
+      } else {
+        throw new Error(result.message || 'Kayıt başarısız');
+      }
+    } catch (error) {
+      this.showError(`Hata: ${error.message}`);
+    }
+  }
+
+  undo() {
+    if (this.undoStack.length === 0 || this.currentEditCell) return;
+    
+    this.redoStack.push(JSON.stringify(this.data));
+    const previousState = this.undoStack.pop();
+    this.data = JSON.parse(previousState);
+    this.renderTable();
+  }
+
+  redo() {
+    if (this.redoStack.length === 0 || this.currentEditCell) return;
+    
+    this.undoStack.push(JSON.stringify(this.data));
+    const nextState = this.redoStack.pop();
+    this.data = JSON.parse(nextState);
+    this.renderTable();
+  }
+
+  updateButtons() {
+    const isEditing = !!this.currentEditCell;
+    this.undoBtn.disabled = this.undoStack.length === 0 || isEditing;
+    this.redoBtn.disabled = this.redoStack.length === 0 || isEditing;
+  }
+
+  showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    
+    const main = document.querySelector('.app-main') || document.body;
+    main.insertBefore(errorDiv, main.firstChild);
+    setTimeout(() => errorDiv.remove(), 5000);
+  }
+
+  showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    
+    const main = document.querySelector('.app-main') || document.body;
+    main.insertBefore(successDiv, main.firstChild);
+    setTimeout(() => successDiv.remove(), 5000);
+  }
+
+  setupClock() {
+    const updateClock = () => {
+      const now = new Date();
+      const clock = document.getElementById('clock');
+      if (clock) {
+        clock.textContent = now.toLocaleTimeString();
+      }
+    };
+    
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+}
+
+document.querySelector('.logo').addEventListener('click', () => {
+  window.location.href = '/';
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  new CSVEditor();
+});
+</script>
+</body>
+</html>

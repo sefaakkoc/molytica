@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Prediction Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+:root {
+    /* Light Theme (Default) */
+    --primary-bg: #ffffff;
+    --secondary-bg: #f5f5f5;
+    --primary-text: #000000;
+    --secondary-text: #555555;
+    --border-color: #dddddd;
+    --primary-accent: #1a73e8;
+    --secondary-accent: #34a853;
+    --warning-accent: #fbbc05;
+    --error-accent: #d93025;
+    --hover-bg: rgba(0,0,0,0.05);
+    --active-bg: rgba(0,0,0,0.1);
+    --sidebar-bg: #ffffff;
+    --card-bg: #ffffff;
+    --console-bg: #f5f5f5;
+    --modal-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    /* Dark Theme */
+    --primary-bg: #121212;
+    --secondary-bg: #1e1e1e;
+    --primary-text: #ffffff;
+    --secondary-text: #aaaaaa;
+    --border-color: #333333;
+    --primary-accent: #8ab4f8;
+    --secondary-accent: #81c995;
+    --warning-accent: #fde293;
+    --error-accent: #f28b82;
+    --hover-bg: rgba(255,255,255,0.1);
+    --active-bg: rgba(255,255,255,0.2);
+    --sidebar-bg: #121212;
+    --card-bg: #1e1e1e;
+    --console-bg: #1e1e1e;
+    --modal-bg: #121212;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    overflow: hidden;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    background-color: var(--primary-bg);
+    border-bottom: 1px solid var(--border-color);
+    height: 56px;
+    position: relative;
+    z-index: 10;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    height: 32px;
+    width: auto;
+}
+
+.header-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--primary-text);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.time-display {
+    font-size: 13px;
+    color: var(--secondary-text);
+    font-feature-settings: "tnum";
+}
+
+.language-selector {
+    padding: 5px 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--primary-text);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--primary-text);
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+/* Main Layout */
+.main-container {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.sidebar-section {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary-text);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-control {
+    background: none;
+    border: none;
+    color: var(--primary-accent);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.dataset-list {
+    list-style: none;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+.dataset-item {
+    padding: 6px 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-text);
+}
+
+.dataset-item:last-child {
+    border-bottom: none;
+}
+
+.dataset-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.dataset-item.active {
+    background-color: rgba(26, 115, 232, 0.1);
+    color: var(--primary-accent);
+}
+
+.dataset-item.selected {
+    background-color: rgba(52, 168, 83, 0.1);
+    border-left: 3px solid var(--secondary-accent);
+}
+
+.dataset-icon {
+    color: var(--secondary-text);
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+}
+
+.dataset-preview {
+    font-size: 12px;
+    color: var(--secondary-text);
+    line-height: 1.4;
+}
+
+/* Main Content */
+.content-area {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Model Controls */
+.model-controls {
+    padding: 8px 12px;
+    background-color: var(--primary-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.model-select {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: 13px;
+    min-width: 0;
+}
+
+.run-button {
+    padding: 7px 12px;
+    background-color: var(--primary-accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.run-button:hover {
+    background-color: var(--primary-accent);
+    opacity: 0.9;
+}
+
+.run-button:active {
+    background-color: var(--primary-accent);
+    opacity: 0.8;
+}
+
+.compare-button {
+    padding: 7px 12px;
+    background-color: var(--warning-accent);
+    color: #202124;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.compare-button:hover {
+    background-color: var(--warning-accent);
+    opacity: 0.9;
+}
+
+/* Console */
+.console-container {
+    display: grid;
+    grid-template-rows: 36px 1fr auto;
+    height: 100%;
+    background-color: var(--console-bg);
+}
+
+.console-header {
+    padding: 0 12px;
+    background-color: var(--primary-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+.console-tabs {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+}
+
+.console-tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--secondary-text);
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 4px;
+}
+
+.console-tab.active {
+    color: var(--primary-accent);
+}
+
+.console-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-accent);
+}
+
+.console-content {
+    padding: 12px;
+    overflow-y: auto;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    margin: 8px;
+    height: calc(100% - 16px);
+    color: var(--primary-text);
+}
+
+/* Process Bar */
+.process-bar-container {
+    padding: 6px 12px;
+    background-color: var(--primary-bg);
+    border-top: 1px solid var(--border-color);
+    display: none;
+}
+
+.process-bar {
+    width: 100%;
+    height: 6px;
+    background-color: var(--border-color);
+    overflow: hidden;
+}
+
+.process-progress {
+    height: 100%;
+    background-color: var(--secondary-accent);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.process-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--secondary-text);
+    margin-top: 4px;
+}
+
+/* Dataset Info */
+.dataset-info {
+    padding: 12px;
+    background-color: var(--primary-bg);
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.info-card {
+    background-color: var(--secondary-bg);
+    padding: 8px;
+}
+
+.info-card-title {
+    font-size: 11px;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+}
+
+.info-card-value {
+    font-size: 16px;
+    font-weight: 500;
+    font-feature-settings: "tnum";
+    color: var(--primary-text);
+}
+
+.columns-section {
+    grid-column: span 2;
+}
+
+.columns-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--primary-text);
+}
+
+.columns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.column-card {
+    background-color: var(--secondary-bg);
+    padding: 8px;
+    font-size: 12px;
+    color: var(--primary-text);
+}
+
+.column-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.column-type {
+    font-size: 11px;
+    color: var(--secondary-text);
+}
+
+/* Export Section */
+.export-section {
+    padding: 8px 12px;
+    background-color: var(--primary-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.export-button {
+    padding: 6px 12px;
+    background-color: var(--secondary-accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.export-button:hover {
+    background-color: var(--secondary-accent);
+    opacity: 0.9;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+    place-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    color: var(--primary-text);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+}
+
+.modal-close:hover {
+    background-color: var(--hover-bg);
+}
+
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    color: var(--primary-text);
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--modal-bg);
+    color: var(--primary-text);
+    padding: 12px 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+/* Mobile Sidebar */
+.mobile-sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 260px;
+    height: calc(100vh - 56px);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0;
+    overflow: hidden;
+}
+
+.mobile-sidebar.active {
+    transform: translateX(0);
+}
+
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 56px);
+    background-color: rgba(0,0,0,0.5);
+    z-index: 99;
+    display: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 220px 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        display: none;
+    }
+    
+    .mobile-sidebar-toggle {
+        display: block;
+    }
+    
+    .dataset-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .columns-section {
+        grid-column: span 1;
+    }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-accent);
+}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo">
+            <span class="header-title">ML Prediction Platform</span>
+        </div>
+        <div class="header-controls">
+            <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="time-display" id="timeDisplay"></div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <select class="language-selector" id="languageSelector">
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+            </select>
+        </div>
+    </header>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
+    
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">
+                <span id="datasetsTitle">Datasets</span>
+                <button class="sidebar-control" id="newDatasetBtn">
+                    <i class="fas fa-plus"></i> <span id="newText">New</span>
+                </button>
+            </div>
+            <ul class="dataset-list" id="datasetList">
+                {% for dataset in datasets %}
+                    <li class="dataset-item">
+                        <i class="fas fa-database dataset-icon"></i>
+                        <span>{{ dataset }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">
+                <span id="datasetControlsTitle">Dataset Controls</span>
+            </div>
+            <div class="dataset-preview">
+                <button id="editDatasetBtn" class="run-button" style="width: 100%; margin-bottom: 8px;">
+                    <i class="fas fa-edit"></i> <span id="editSelectedText">Edit Selected</span>
+                </button>
+                <div>
+                    <p><small id="multiselectHint">Ctrl/Cmd+Click: Multi-select</small></p>
+                    <p><small id="rangeSelectHint">Shift+Click: Range select</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Sidebar - Compact but functional -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span id="datasetsTitleDesktop">Datasets</span>
+                    <button class="sidebar-control" id="newDatasetBtnDesktop">
+                        <i class="fas fa-plus"></i> <span id="newTextDesktop">New</span>
+                    </button>
+                </div>
+                <ul class="dataset-list" id="datasetListDesktop">
+                    {% for dataset in datasets %}
+                        <li class="dataset-item">
+                            <i class="fas fa-database dataset-icon"></i>
+                            <span>{{ dataset }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span id="datasetControlsTitleDesktop">Dataset Controls</span>
+                </div>
+                <div class="dataset-preview">
+                    <button id="editDatasetBtnDesktop" class="run-button" style="width: 100%; margin-bottom: 8px;">
+                        <i class="fas fa-edit"></i> <span id="editSelectedTextDesktop">Edit Selected</span>
+                    </button>
+                    <div>
+                        <p><small id="multiselectHintDesktop">Ctrl/Cmd+Click: Multi-select</small></p>
+                        <p><small id="rangeSelectHintDesktop">Shift+Click: Range select</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content - Maximized space usage -->
+        <div class="content-area">
+            <!-- Model Controls - Compact row -->
+            <div class="model-controls">
+                <select class="model-select" id="modelSelect">
+                    <option value="">Select a model...</option>
+                    {% for code in codess %}
+                        <option value="{{ code }}">{{ code }}</option>
+                    {% endfor %}
+                </select>
+                <button class="run-button" id="runModelBtn">
+                    <i class="fas fa-play"></i> <span id="trainModelText">Train Model</span>
+                </button>
+                <button class="compare-button" id="compareModelsBtn" onclick="window.location.href='/compare-models'">
+                    <i class="fas fa-balance-scale"></i> <span id="compareText">Compare</span>
+                </button>
+            </div>
+                        
+            <!-- Console - Maximized space -->
+            <div class="console-container">
+                <div class="console-header">
+                    <div class="console-tabs">
+                        <div class="console-tab active" data-tab="console"><span id="consoleTabText">Console</span></div>
+                        <div class="console-tab disabled" data-tab="results"><span id="resultsTabText">Results</span></div>
+                    </div>
+                </div>
+                <div class="console-content" id="consoleOutput"></div>
+                
+                <!-- Process Bar - Bottom of console -->
+                <div class="process-bar-container">
+                    <div class="process-bar">
+                        <div class="process-progress"></div>
+                    </div>
+                    <div class="process-info"></div>
+                </div>
+            </div>
+            
+            <!-- Dataset Info - Compact grid -->
+            <div class="dataset-info">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-title" id="rowTitle">Row</div>
+                        <div class="info-card-value">{{ rowcount }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title" id="columnTitle">Column</div>
+                        <div class="info-card-value">12</div>
+                    </div>
+                </div>
+                
+                <div class="columns-section">
+                    <div class="columns-title" id="dataColumnsTitle">Data Columns</div>
+                    <div class="columns-grid">
+                        <div class="column-card">
+                            <div class="column-name">Ar-B(OH)2</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">Ar-X</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">product</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">catalizor</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">base</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">solv1</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">solv2</div>
+                            <div class="column-type">smiles</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">amount</div>
+                            <div class="column-type">float</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">centigrades</div>
+                            <div class="column-type">float</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">minute</div>
+                            <div class="column-type">integer</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">cycle</div>
+                            <div class="column-type">float</div>
+                        </div>
+                        <div class="column-card">
+                            <div class="column-name">yield</div>
+                            <div class="column-type">float</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Section - Compact -->
+            <div class="export-section">
+                <button class="export-button" id="exportModelBtn">
+                    <i class="fas fa-download"></i> <span id="exportModelText">Export Database</span>
+                </button>
+                <button class="export-button" id="exportResultsBtn">
+                    <i class="fas fa-file-export"></i> <span id="exportResultsText">Visualize Results</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Dataset Modal - Professional -->
+    <div class="modal" id="editDatasetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="editDatasetModalTitle">Edit Dataset</h2>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; margin-bottom: 8px;" id="selectedDatasetsTitle">Selected Datasets</h3>
+                    <div id="selectedDatasetsList" style="font-size: 13px; color: var(--secondary-text);"></div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; margin-bottom: 8px;" id="datasetOperationsTitle">Dataset Operations</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="run-button" style="width: 100%;">
+                            <i class="fas fa-columns"></i> <span id="editText">Edit</span>
+                        </button>
+                        <button class="run-button" style="width: 100%;">
+                            <i class="fas fa-filter"></i> <span id="previewText">Preview</span>
+                        </button>
+                        <button class="run-button" style="width: 100%;">
+                            <i class="fas fa-code"></i> <span id="excelToCsvText">Excel To Csv</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+// Translation dictionary
+const translations = {
+    en: {
+        datasetsTitle: "Datasets",
+        newText: "New",
+        datasetControlsTitle: "Dataset Controls",
+        editSelectedText: "Edit Selected",
+        multiselectHint: "Ctrl/Cmd+Click: Multi-select",
+        rangeSelectHint: "Shift+Click: Range select",
+        trainModelText: "Train Model",
+        compareText: "Compare",
+        consoleTabText: "Console",
+        resultsTabText: "Results",
+        rowTitle: "Row",
+        columnTitle: "Column",
+        dataColumnsTitle: "Data Columns",
+        exportModelText: "Export Database",
+        exportResultsText: "Export Results",
+        editDatasetModalTitle: "Edit Dataset",
+        selectedDatasetsTitle: "Selected Datasets",
+        datasetOperationsTitle: "Dataset Operations",
+        editText: "Edit",
+        previewText: "Preview",
+        excelToCsvText: "Excel To Csv",
+        noDatasetsSelected: "No datasets selected",
+        processingText: "Processing...",
+        pleaseSelectModel: "Please select a model first",
+        pleaseSelectDataset: "Please select at least one dataset",
+        pleaseSelectOneDataset: "Please select only ONE dataset to edit",
+        modelTrainingStarted: "Model training started",
+        modelTrainingCompleted: "Model training completed successfully!",
+        errorStartingModel: "Error starting model"
+    },
+    tr: {
+        datasetsTitle: "Veri Kümeleri",
+        newText: "Yeni",
+        datasetControlsTitle: "Veri Kümesi Kontrolleri",
+        editSelectedText: "Seçileni Düzenle",
+        multiselectHint: "Ctrl/Cmd+Tıklama: Çoklu seçim",
+        rangeSelectHint: "Shift+Tıklama: Aralık seçimi",
+        trainModelText: "Model Eğit",
+        compareText: "Karşılaştır",
+        consoleTabText: "Konsol",
+        resultsTabText: "Sonuçlar",
+        rowTitle: "Satır",
+        columnTitle: "Sütun",
+        dataColumnsTitle: "Veri Sütunları",
+        exportModelText: "Verisetini Dışa Aktar",
+        exportResultsText: "Sonuçları Görselleştir",
+        editDatasetModalTitle: "Veri Kümesini Düzenle",
+        selectedDatasetsTitle: "Seçilen Veri Kümeleri",
+        datasetOperationsTitle: "Veri Kümesi İşlemleri",
+        editText: "Düzenle",
+        previewText: "Önizleme",
+        excelToCsvText: "Excel'den CSV'ye",
+        noDatasetsSelected: "Hiç veri kümesi seçilmedi",
+        processingText: "İşleniyor...",
+        pleaseSelectModel: "Lütfen önce bir model seçin",
+        pleaseSelectDataset: "Lütfen en az bir veri kümesi seçin",
+        pleaseSelectOneDataset: "Lütfen düzenlemek için yalnızca BİR veri kümesi seçin",
+        modelTrainingStarted: "Model eğitimi başladı",
+        modelTrainingCompleted: "Model eğitimi başarıyla tamamlandı!",
+        errorStartingModel: "Model başlatılırken hata"
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const state = {
+        selectedDatasets: new Set(),
+        selectedCode: null,
+        isProcessing: false,
+        currentTab: 'console',
+        consoleContent: '',
+        resultsContent: '',
+        resultsAvailable: false,
+        comparingModels: false,
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        language: localStorage.getItem('language') || 'en',
+        mobileSidebarOpen: false
+    };
+
+    // Initialize theme
+    function initTheme() {
+        if (state.darkMode) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i>';
+        }
+    }
+
+    // Initialize language and update all translations
+    function initLanguage() {
+        document.getElementById('languageSelector').value = state.language;
+        updateTranslations();
+    }
+
+    // Update all translations on the page
+    function updateTranslations() {
+        const lang = state.language;
+        const translation = translations[lang] || translations.en;
+        
+        // Update all elements with translations
+        Object.keys(translation).forEach(key => {
+            const elements = document.querySelectorAll(`[id="${key}"]`);
+            elements.forEach(el => {
+                if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                    el.value = translation[key];
+                } else {
+                    el.textContent = translation[key];
+                }
+            });
+        });
+        
+        // Update selected datasets display
+        updateSelectedDatasetsDisplay();
+        
+        // ÖZEL DÜZELTME: Train Model butonunu güncelle
+        const runModelBtn = document.getElementById('runModelBtn');
+        if (runModelBtn) {
+            const span = runModelBtn.querySelector('span');
+            if (span) {
+                span.textContent = translation.trainModelText;
+            } else {
+                runModelBtn.innerHTML = `<i class="fas fa-play"></i> ${translation.trainModelText}`;
+            }
+        }
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        state.darkMode = !state.darkMode;
+        localStorage.setItem('darkMode', state.darkMode);
+        initTheme();
+    }
+
+    // Change language
+    function changeLanguage(lang) {
+        state.language = lang;
+        localStorage.setItem('language', lang);
+        updateTranslations();
+    }
+
+    // Toggle mobile sidebar
+    function toggleMobileSidebar() {
+        state.mobileSidebarOpen = !state.mobileSidebarOpen;
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const overlay = document.getElementById('mobileSidebarOverlay');
+        
+        if (state.mobileSidebarOpen) {
+            mobileSidebar.classList.add('active');
+            overlay.style.display = 'block';
+        } else {
+            mobileSidebar.classList.remove('active');
+            overlay.style.display = 'none';
+        }
+    }
+
+    // Close mobile sidebar when clicking outside
+    function closeMobileSidebar() {
+        state.mobileSidebarOpen = false;
+        document.getElementById('mobileSidebar').classList.remove('active');
+        document.getElementById('mobileSidebarOverlay').style.display = 'none';
+    }
+
+    // DOM Elements
+    const elements = {
+        datasetList: document.getElementById('datasetList'),
+        datasetListDesktop: document.getElementById('datasetListDesktop'),
+        datasetItems: document.querySelectorAll('.dataset-item'),
+        modelSelect: document.getElementById('modelSelect'),
+        runModelBtn: document.getElementById('runModelBtn'),
+        consoleOutput: document.getElementById('consoleOutput'),
+        consoleTabs: document.querySelectorAll('.console-tab'),
+        resultsTab: document.querySelector('.console-tab[data-tab="results"]'),
+        editDatasetBtn: document.getElementById('editDatasetBtn'),
+        editDatasetBtnDesktop: document.getElementById('editDatasetBtnDesktop'),
+        closeEditModal: document.getElementById('closeEditModal'),
+        editDatasetModal: document.getElementById('editDatasetModal'),
+        selectedDatasetsList: document.getElementById('selectedDatasetsList'),
+        timeDisplay: document.getElementById('timeDisplay'),
+        rowCountDisplay: document.querySelector('.info-card-value'),
+        exportModelBtn: document.getElementById('exportModelBtn'),
+        exportResultsBtn: document.getElementById('exportResultsBtn'),
+        compareModelsBtn: document.getElementById('compareModelsBtn'),
+        newDatasetBtn: document.getElementById('newDatasetBtn'),
+        newDatasetBtnDesktop: document.getElementById('newDatasetBtnDesktop'),
+        themeToggle: document.getElementById('themeToggle'),
+        languageSelector: document.getElementById('languageSelector'),
+        mobileSidebarToggle: document.getElementById('mobileSidebarToggle'),
+        mobileSidebarOverlay: document.getElementById('mobileSidebarOverlay')
+    };
+
+    // Initialize theme and language
+    initTheme();
+    initLanguage();
+
+    // Theme toggle event
+    elements.themeToggle.addEventListener('click', toggleTheme);
+
+    // Language change event
+    elements.languageSelector.addEventListener('change', function() {
+        changeLanguage(this.value);
+    });
+
+    // Mobile sidebar toggle
+    elements.mobileSidebarToggle.addEventListener('click', toggleMobileSidebar);
+    elements.mobileSidebarOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Update time display
+    function updateTime() {
+        const now = new Date();
+        elements.timeDisplay.textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Update row count based on selected datasets
+    function updateRowCount() {
+        if (state.selectedDatasets.size === 0) {
+            elements.rowCountDisplay.textContent = '0';
+            return;
+        }
+
+        fetch('/get_dataset_rowcount', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedDatasets: Array.from(state.selectedDatasets)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            elements.rowCountDisplay.textContent = data.rowcount || '0';
+        })
+        .catch(error => {
+            console.error('Error fetching row count:', error);
+            elements.rowCountDisplay.textContent = '0';
+        });
+    }
+
+    // Tab switching functionality
+    elements.consoleTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            if (this.classList.contains('disabled')) return;
+            
+            const tabName = this.getAttribute('data-tab');
+            
+            // Deactivate all tabs
+            elements.consoleTabs.forEach(t => t.classList.remove('active'));
+            
+            // Activate clicked tab
+            this.classList.add('active');
+            
+            // Store current content before switching
+            if (state.currentTab === 'console') {
+                state.consoleContent = elements.consoleOutput.innerHTML;
+            } else if (state.currentTab === 'results') {
+                state.resultsContent = elements.consoleOutput.innerHTML;
+            }
+            
+            state.currentTab = tabName;
+            
+            if (tabName === 'results') {
+                if (state.resultsAvailable) {
+                    if (state.resultsContent) {
+                        elements.consoleOutput.innerHTML = state.resultsContent;
+                    } else {
+                        loadResultsContent();
+                    }
+                }
+            } else if (tabName === 'console') {
+                if (state.consoleContent) {
+                    elements.consoleOutput.innerHTML = state.consoleContent;
+                }
+            }
+        });
+    });
+
+    // Dataset selection
+    function setupDatasetSelection(items) {
+        items.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const datasetName = this.querySelector('span').textContent;
+                
+                if (e.ctrlKey || e.metaKey) {
+                    // Ctrl/Cmd click - toggle selection
+                    if (state.selectedDatasets.has(datasetName)) {
+                        state.selectedDatasets.delete(datasetName);
+                        this.classList.remove('selected');
+                    } else {
+                        state.selectedDatasets.add(datasetName);
+                        this.classList.add('selected');
+                    }
+                } else if (e.shiftKey) {
+                    // Shift click - range selection
+                    const items = Array.from(document.querySelectorAll('.dataset-item'));
+                    const currentIndex = items.indexOf(this);
+                    let lastSelectedIndex = -1;
+                    
+                    // Find the last selected item
+                    for (let i = items.length - 1; i >= 0; i--) {
+                        if (state.selectedDatasets.has(items[i].querySelector('span').textContent)) {
+                            lastSelectedIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (lastSelectedIndex >= 0) {
+                        const start = Math.min(currentIndex, lastSelectedIndex);
+                        const end = Math.max(currentIndex, lastSelectedIndex);
+                        
+                        // Clear all selections first
+                        state.selectedDatasets.clear();
+                        document.querySelectorAll('.dataset-item').forEach(i => i.classList.remove('selected'));
+                        
+                        // Select range
+                        for (let i = start; i <= end; i++) {
+                            const name = items[i].querySelector('span').textContent;
+                            state.selectedDatasets.add(name);
+                            items[i].classList.add('selected');
+                        }
+                    } else {
+                        // If no previous selection, just select this one
+                        state.selectedDatasets.clear();
+                        state.selectedDatasets.add(datasetName);
+                        document.querySelectorAll('.dataset-item').forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                    }
+                } else {
+                    // Regular click - clear all and select one
+                    document.querySelectorAll('.dataset-item').forEach(i => i.classList.remove('selected'));
+                    state.selectedDatasets.clear();
+                    state.selectedDatasets.add(datasetName);
+                    this.classList.add('selected');
+                }
+                
+                updateSelectedDatasetsDisplay();
+                updateRowCount();
+                updateUI();
+                
+                // Close mobile sidebar after selection
+                if (window.innerWidth <= 992) {
+                    closeMobileSidebar();
+                }
+            });
+        });
+    }
+
+    // Setup dataset selection for both desktop and mobile
+    setupDatasetSelection(document.querySelectorAll('#datasetList .dataset-item'));
+    setupDatasetSelection(document.querySelectorAll('#datasetListDesktop .dataset-item'));
+
+    // Model selection
+    elements.modelSelect.addEventListener('change', function() {
+        if (!state.comparingModels) {
+            state.selectedCode = this.value;
+        }
+        updateUI();
+    });
+
+    // Show notification
+    function showNotification(message, duration = 3000) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+    }
+
+    // Edit dataset button
+    function handleEditDatasetClick() {
+        if (state.selectedDatasets.size === 0) {
+            showNotification(translations[state.language].pleaseSelectDataset);
+            return;
+        }
+
+        else if (state.selectedDatasets.size > 1) {
+            showNotification(translations[state.language].pleaseSelectOneDataset);
+            return;
+        }
+
+        elements.editDatasetModal.style.display = 'flex';
+    }
+
+    elements.editDatasetBtn.addEventListener('click', handleEditDatasetClick);
+    elements.editDatasetBtnDesktop.addEventListener('click', handleEditDatasetClick);
+
+    // Close modal
+    elements.closeEditModal.addEventListener('click', function() {
+        elements.editDatasetModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    elements.editDatasetModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            elements.editDatasetModal.style.display = 'none';
+        }
+    });
+
+    // Run model button click
+    elements.runModelBtn.addEventListener('click', function() {
+        if (state.isProcessing) {
+            showNotification(translations[state.language].processingText);
+            return;
+        }
+        
+        if (!state.selectedCode) {
+            showNotification(translations[state.language].pleaseSelectModel);
+            return;
+        }
+        
+        if (state.selectedDatasets.size === 0) {
+            showNotification(translations[state.language].pleaseSelectDataset);
+            return;
+        }
+
+        // Reset state and switch to console tab
+        state.isProcessing = true;
+        state.currentTab = 'console';
+        state.resultsAvailable = false;
+        
+        // Switch to console tab
+        elements.consoleTabs.forEach(t => t.classList.remove('active'));
+        document.querySelector('.console-tab[data-tab="console"]').classList.add('active');
+        
+        updateUI();
+
+        // Clear console
+        elements.consoleOutput.textContent = '';
+        
+        // Add starting message to console
+        elements.consoleOutput.textContent = `${translations[state.language].modelTrainingStarted} ${state.selectedCode} with datasets: ${Array.from(state.selectedDatasets).join(', ')}\n`;
+        elements.consoleOutput.textContent += '='.repeat(50) + '\n';
+
+        // Start streaming output
+        startStreamingOutput(state.selectedCode);
+
+        // Send training request
+        sendModelTrainingRequest(state.selectedDatasets, state.selectedCode);
+    });
+
+    function startStreamingOutput(selectedCode) {
+        const eventSource = new EventSource(`/stream_output?code=${encodeURIComponent(selectedCode)}`);
+
+        eventSource.onmessage = function(event) {
+            const message = event.data;
+            
+            if (message.startsWith('COMPLETE:')) {
+                state.isProcessing = false;
+                state.resultsAvailable = true;
+                updateUI();
+                eventSource.close();
+                
+                // Add completion message to console
+                elements.consoleOutput.textContent += '\n' + '='.repeat(50) + '\n';
+                elements.consoleOutput.textContent += `🎉 ${translations[state.language].modelTrainingCompleted}\n`;
+                elements.consoleOutput.textContent += 'Loading results...\n';
+                elements.consoleOutput.scrollTop = elements.consoleOutput.scrollHeight;
+                
+                // Auto-switch to results tab after 2 seconds and load results
+                setTimeout(() => {
+                    if (state.currentTab === 'console') {
+                        state.consoleContent = elements.consoleOutput.innerHTML;
+                    }
+                    state.currentTab = 'results';
+                    document.querySelector('.console-tab[data-tab="results"]').classList.add('active');
+                    document.querySelector('.console-tab[data-tab="console"]').classList.remove('active');
+                    loadResultsContent();
+                }, 2000);
+            }
+            else if (message.startsWith('ERROR:')) {
+                // Only show in console tab
+                if (state.currentTab === 'console') {
+                    elements.consoleOutput.textContent += message + '\n';
+                    elements.consoleOutput.scrollTop = elements.consoleOutput.scrollHeight;
+                }
+                
+                // If it's a process error, stop processing
+                if (message.includes('Process failed') || message.includes('Command failed')) {
+                    state.isProcessing = false;
+                    updateUI();
+                    eventSource.close();
+                }
+            }
+            else {
+                // Only show in console tab
+                if (state.currentTab === 'console') {
+                    elements.consoleOutput.textContent += message + '\n';
+                    elements.consoleOutput.scrollTop = elements.consoleOutput.scrollHeight;
+                }
+            }
+        };
+
+        eventSource.onerror = function() {
+            state.isProcessing = false;
+            updateUI();
+            eventSource.close();
+            
+            if (state.currentTab === 'console') {
+                elements.consoleOutput.textContent += `\n❌ ${translations[state.language].errorStartingModel}\n`;
+                elements.consoleOutput.scrollTop = elements.consoleOutput.scrollHeight;
+            }
+        };
+    }
+
+    function loadResultsContent() {
+        fetch('/get_latest_result')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                elements.consoleOutput.innerHTML = `<pre style="white-space: pre-wrap; font-family: monospace; font-size: 13px; padding: 10px;">${data.content}</pre>`;
+                state.resultsContent = elements.consoleOutput.innerHTML;
+                state.resultsAvailable = true;
+                updateUI();
+            } else {
+                elements.consoleOutput.innerHTML = `<pre style="color: var(--error-accent);">${data.message || 'No results available'}</pre>`;
+            }
+        })
+        .catch(error => {
+            elements.consoleOutput.innerHTML = `<pre style="color: var(--error-accent);">Error loading results: ${error.message}</pre>`;
+        });
+    }
+
+    function sendModelTrainingRequest(datasets, code) {
+        fetch('/run_model', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedDatasets: Array.from(datasets),
+                selectedCode: code
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Failed to start model');
+            }
+        })
+        .catch(error => {
+            state.isProcessing = false;
+            updateUI();
+            
+            if (state.currentTab === 'console') {
+                elements.consoleOutput.textContent += `\n❌ ${translations[state.language].errorStartingModel}: ${error.message}\n`;
+                elements.consoleOutput.scrollTop = elements.consoleOutput.scrollHeight;
+            }
+            console.error('Error:', error);
+        });
+    }
+
+    function updateSelectedDatasetsDisplay() {
+        elements.selectedDatasetsList.textContent = 
+            state.selectedDatasets.size > 0 
+            ? Array.from(state.selectedDatasets).join(', ') 
+            : translations[state.language].noDatasetsSelected;
+    }
+
+    function updateUI() {
+        elements.runModelBtn.disabled = 
+            state.isProcessing || 
+            (!state.comparingModels && !state.selectedCode) || 
+            state.selectedDatasets.size === 0 ||
+            state.comparingModels;
+        
+        if (state.isProcessing) {
+            elements.runModelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + 
+                translations[state.language].processingText;
+        } else {
+            elements.runModelBtn.innerHTML = '<i class="fas fa-play"></i> ' + 
+                translations[state.language].trainModelText;
+        }
+
+        // Update results tab state
+        if (state.resultsAvailable) {
+            elements.resultsTab.classList.remove('disabled');
+        } else {
+            elements.resultsTab.classList.add('disabled');
+        }
+        
+        // Update compare button state
+        elements.compareModelsBtn.disabled = state.isProcessing;
+    }
+
+    // Export Model button
+    elements.exportModelBtn.addEventListener('click', function() {
+        window.location.href = '/static/model/miaw.csv';
+    });
+
+    // Export Results button
+    elements.exportResultsBtn.addEventListener('click', function() {
+        window.location.href = '/visual';
+    });
+
+    elements.newDatasetBtn.addEventListener('click', function() {
+        window.location.href = '/manual';
+    });
+
+    elements.newDatasetBtnDesktop.addEventListener('click', function() {
+        window.location.href = '/manual';
+    });
+
+    // Edit Dataset buttons (inside the modal)
+    document.querySelectorAll('#editDatasetModal .run-button').forEach((button, index) => {
+        button.addEventListener('click', function() {
+            if (state.selectedDatasets.size === 0) {
+                showNotification(translations[state.language].pleaseSelectDataset);
+                return;
+            }
+            
+            let url = '';
+            const datasetsParam = Array.from(state.selectedDatasets).join(',');
+            
+            switch(index) {
+                case 0: // Edit
+                    url = `/edit_dataset?models=${encodeURIComponent(datasetsParam)}`;
+                    break;
+                case 1: // Preview
+                    url = `/preview_dataset?models=${encodeURIComponent(datasetsParam)}`;
+                    break;
+                case 2: // Excel To Csv
+                    url = `/excel_to_csv`;
+                    break;
+            }
+            
+            if(url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    // Initialize UI
+    updateUI();
+    updateRowCount();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const logo = document.querySelector('img.logo');
+  if (logo) {
+    logo.style.cursor = 'pointer';
+    
+    logo.addEventListener('click', function() {
+      window.location.href = '/';
+    });
+  }
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yardım - Chemical Data Analyzer PRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg-primary: #fff;
+      --bg-secondary: #f0f0f0;
+      --heading-bg: #fff;
+      --heading-color: #333;
+      --color-primary: #333;
+      --color-primary-hover: #555;
+      --text-primary: #333;
+      --text-secondary: #666;
+      --border-color: #ccc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      font-family: 'Roboto', sans-serif;
+      color: var(--text-primary);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: var(--heading-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    header .logo {
+      height: 60px;
+      cursor: pointer;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 30px;
+    }
+
+    #clock {
+      font-size: 1.3rem;
+    }
+
+    .language-switcher {
+      background: transparent;
+      border: 2px solid var(--heading-color);
+      padding: 8px 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .language-switcher:hover {
+      background-color: var(--heading-color);
+      color: #fff;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    #help-section {
+      background-color: var(--bg-secondary);
+      padding: 30px;
+      margin-top: 50px;
+    }
+
+    #help-section h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    #help-section h3 {
+      font-size: 1.5rem;
+      margin: 25px 0 15px;
+    }
+
+    #help-section h4 {
+      font-size: 1.3rem;
+      margin: 20px 0 10px;
+    }
+
+    #help-section p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: var(--text-secondary);
+    }
+
+    #help-section ul {
+      list-style-position: inside;
+      margin-bottom: 20px;
+    }
+
+    #help-section li {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    #help-section li strong {
+      color: var(--text-primary);
+    }
+
+    footer {
+      background-color: var(--bg-secondary);
+      padding: 30px 20px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .contact {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .social-icons {
+      margin: 20px 0;
+    }
+
+    .social-icons a {
+      display: inline-block;
+      margin: 0 15px;
+      font-size: 1.7rem;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      color: var(--color-primary);
+    }
+
+    .copyright {
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+      
+      #help-section {
+        padding: 20px 15px;
+      }
+      
+      #help-section h2 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" />
+    <h1 id="title">Molytica Chemical Analyser</h1>
+  </div>
+  <div class="header-right">
+    <div id="clock" title="Current Time"></div>
+    <button class="language-switcher" id="lang-switch">EN</button>
+  </div>
+</header>
+
+<main>
+  <section id="help-section">
+    <h2 id="help-title">Yardım / Help</h2>
+
+    <!-- Turkish Content -->
+    <div class="help-content" id="help-content-tr">
+      <p><strong>Türkçe:</strong> Bu, Chemical Data Analyzer kullanımı için kapsamlı bir rehberdir. Bu araç, kimyasal veri analizi yapmanızı, tahminler oluşturmanızı ve görselleştirmelerle raporlar hazırlamanızı sağlar.</p>
+
+      <h3>1. Sistem Gereksinimleri / System Requirements</h3>
+      <p><strong>Türkçe:</strong> Aşağıdaki sistem gereksinimleri, yazılımı sorunsuz bir şekilde çalıştırabilmeniz için gereklidir:</p>
+      <ul>
+        <li><strong>Tarayıcı / Browser:</strong> Google Chrome, Mozilla Firefox, Safari, veya Microsoft Edge'in en son sürümleri.</li>
+        <li><strong>İşletim Sistemi / Operating System:</strong> Windows, macOS veya Linux.</li>
+        <li><strong>Ek Araçlar / Additional Tools:</strong> Python (Veri analizi için) ve Node.js (Arka uç JavaScript işlevselliği için) gereklidir.</li>
+        <li><strong>Veri Yükleme / File Upload:</strong> CSV veya Excel dosyaları ile veri yükleme özelliği desteklenir.</li>
+      </ul>
+
+      <h3>2. Desteklenen Dosya Formatları / Supported File Formats</h3>
+      <ul>
+        <li><strong>CSV:</strong> Tabular veriler için standart format. Veri analizi yapabilmek için her kolon başlığı düzgün bir şekilde etiketlenmelidir.</li>
+        <li><strong>Excel:</strong> Excel dosyalarını CSV formatına dönüştürerek yükleyebilirsiniz.</li>
+        <li><strong>Manuel Veri Girişi / Manual Data Entry:</strong> Veri girişi yapmak için el ile veri girme özelliği mevcuttur.</li>
+      </ul>
+
+      <h3>3. Nasıl Kullanılır? / How to Use?</h3>
+      <p><strong>Türkçe:</strong> Yazılımın kullanımı adım adım aşağıda açıklanmıştır:</p>
+      <h4>3.1. Veri Yükleme / Data Upload</h4>
+      <ul>
+        <li><strong>Manuel Veri Girişi / Manual Data Entry:</strong> "Manuel Veri Girişi" butonuna tıklayın ve verilerinizi elle girin. Bu seçenek, küçük veri setleri için idealdir.</li>
+        <li><strong>CSV Dosyası Yükleme / Upload CSV File:</strong> "CSV Dosyası Yükle" butonuna tıklayarak bir CSV dosyasını yükleyin. Verinizin doğru formatta olduğundan emin olun.</li>
+        <li><strong>Excel Dosyası Yükleme / Upload Excel File:</strong> "Excel Dosyası Yükle" butonuna tıklayarak bir Excel dosyasını seçin. Sistem, Excel dosyasını otomatik olarak CSV'ye dönüştürerek yükleyecektir.</li>
+      </ul>
+
+      <h4>3.2. Veri Analizi / Data Analysis</h4>
+      <ul>
+        <li><strong>Tahmin Yap / Make Prediction:</strong> Yüklediğiniz verilerle tahmin yapmak için "Tahmin Yap" butonuna tıklayın. Bu işlem, verileri analiz eder ve kullanıcıya tahminler sunar.</li>
+        <li><strong>Görselleştirme / Visualization:</strong> Verilerinizi daha iyi anlamak için "Görselleştirme" butonuna tıklayın. Çeşitli grafikler ve diyagramlarla verilerinizi görsel hale getirebilirsiniz.</li>
+        <li><strong>Rapor Oluştur / Generate Report:</strong> "Rapor Oluştur" butonuna tıklayarak analizinizin raporunu otomatik olarak oluşturabilirsiniz. Rapor, verilerinizin analizini ve tahmin sonuçlarını içerecektir.</li>
+      </ul>
+
+      <h3>4. Veri Seti Gereksinimleri / Dataset Requirements</h3>
+      <ul>
+        <li><strong>Zaman Bilgisi / Time Information:</strong> Eğer zaman serisi tahmini yapıyorsanız, verinizin tarih/saat bilgilerini içermesi gerekmektedir.</li>
+        <li><strong>Kategorik Özellikler / Categorical Features:</strong> Verinizde kategorik değişkenler (örneğin: kimyasal tür, bölge) olmalıdır.</li>
+        <li><strong>Sayıysal Özellikler / Numeric Features:</strong> Verinizde sayısal değişkenler (örneğin: sıcaklık, yoğunluk) bulunmalıdır.</li>
+        <li><strong>Eksik Veriler / Missing Data:</strong> Verinizde eksik veriler bulunmamalıdır. Eksik verileri tamamlamalı veya çıkarma işlemi yapmalısınız.</li>
+        <li><strong>Kolon Başlıkları / Column Headers:</strong> Her bir kolonun başlığı açık bir şekilde etiketlenmelidir.</li>
+      </ul>
+    </div>
+
+    <!-- English Content -->
+    <div class="help-content" id="help-content-en" style="display: none;">
+      <p><strong>English:</strong> This is a comprehensive guide to using Chemical Data Analyzer. This tool allows you to perform chemical data analysis, generate predictions, and create reports with visualizations.</p>
+
+      <h3>1. System Requirements</h3>
+      <p>The following system requirements are necessary to run the software smoothly:</p>
+      <ul>
+        <li><strong>Browser:</strong> Latest versions of Google Chrome, Mozilla Firefox, Safari, or Microsoft Edge.</li>
+        <li><strong>Operating System:</strong> Windows, macOS, or Linux.</li>
+        <li><strong>Additional Tools:</strong> Python (for data analysis) and Node.js (for backend JavaScript functionality) are required.</li>
+        <li><strong>File Upload:</strong> Support for uploading data via CSV or Excel files.</li>
+      </ul>
+
+      <h3>2. Supported File Formats</h3>
+      <ul>
+        <li><strong>CSV:</strong> The standard format for tabular data. Each column header must be properly labeled for analysis.</li>
+        <li><strong>Excel:</strong> You can upload Excel files by converting them to CSV format.</li>
+        <li><strong>Manual Data Entry:</strong> You can manually enter data through the provided option.</li>
+      </ul>
+
+      <h3>3. How to Use?</h3>
+      <ul>
+        <li><strong>Manual Data Entry:</strong> Click the "Manual Data Entry" button and enter your data manually.</li>
+        <li><strong>Upload CSV File:</strong> Click the "Upload CSV File" button to upload a CSV file.</li>
+        <li><strong>Upload Excel File:</strong> Click the "Upload Excel File" button to select an Excel file.</li>
+      </ul>
+
+      <h3>4. Dataset Requirements</h3>
+      <ul>
+        <li><strong>Time Information:</strong> If you are doing time series forecasting, your dataset should include date/time information.</li>
+        <li><strong>Categorical Features:</strong> Your dataset should include categorical variables (e.g., chemical type, region).</li>
+        <li><strong>Numeric Features:</strong> Your dataset should include numeric variables (e.g., temperature, concentration).</li>
+        <li><strong>Missing Data:</strong> Your dataset should not contain missing data. You should fill or remove missing values.</li>
+        <li><strong>Column Headers:</strong> Each column should be clearly labeled with a header.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="contact">
+      <strong>İletişim / Contact:</strong> sefaakkoc@outlook.com | @sefaakkoc
+    </div>
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="https://github.com/sefaakkoc"><i class="fab fa-github"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+    </div>
+    <div class="copyright">© 2025 Molytica Chemical Analyser</div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Logo click handler
+    const logo = document.querySelector('img.logo');
+    if (logo) {
+      logo.style.cursor = 'pointer';
+      logo.addEventListener('click', function() {
+        window.location.href = window.location.origin + '/';
+      });
+    }
+
+    // Clock functionality
+    function updateClock() {
+      const clock = document.getElementById('clock');
+      if (!clock) return;
+
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      clock.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Language switcher functionality
+    const langSwitcher = document.getElementById('lang-switch');
+    const helpContentTr = document.getElementById('help-content-tr');
+    const helpContentEn = document.getElementById('help-content-en');
+
+    let currentLang = 'tr';
+
+    langSwitcher.addEventListener('click', () => {
+      if (currentLang === 'tr') {
+        helpContentTr.style.display = 'none';
+        helpContentEn.style.display = 'block';
+        langSwitcher.textContent = 'TR';
+        currentLang = 'en';
+      } else {
+        helpContentEn.style.display = 'none';
+        helpContentTr.style.display = 'block';
+        langSwitcher.textContent = 'EN';
+        currentLang = 'tr';
+      }
+    });
+  });
+</script>
+</body>
+</html>

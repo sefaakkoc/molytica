@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chemical Data Analyzer PRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f0f0f0;
+      --heading-bg: #ffffff;
+      --heading-color: #111111;
+      --color-primary: #111111;
+      --color-primary-hover: #222222;
+      --text-primary: #111111;
+      --text-secondary: #555555;
+      --border-color: #cccccc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      font-family: 'Roboto', sans-serif;
+      color: var(--text-primary);
+      font-size: 16px;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: var(--heading-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    header .logo {
+      height: 60px;
+      cursor: pointer;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      color: var(--heading-color);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    #clock {
+      font-size: 1.3rem;
+      color: var(--text-primary);
+    }
+
+    .language-switcher {
+      background: transparent;
+      border: 2px solid var(--heading-color);
+      padding: 8px 15px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--heading-color);
+    }
+
+    .language-switcher:hover {
+      background-color: var(--heading-color);
+      color: #ffffff;
+    }
+
+    .language-switcher.animate {
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 20px;
+      flex: 1;
+    }
+
+    main h2 {
+      font-size: 2rem;
+      text-align: center;
+      color: var(--heading-color);
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 50px;
+      color: var(--text-secondary);
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      width: 30%;
+      min-width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .box h3 {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--heading-color);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 0;
+      margin-bottom: 18px;
+      border: 1px solid var(--border-color);
+      background-color: var(--color-primary);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    footer {
+      background-color: var(--color-primary);
+      padding: 20px;
+      color: #ffffff;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    footer .contact {
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+
+    footer .social-icons {
+      margin: 15px 0;
+    }
+
+    footer .social-icons a {
+      margin: 0 14px;
+      font-size: 1.7rem;
+      color: #ffffff;
+      transition: color 0.3s ease;
+    }
+
+    footer .social-icons a:hover {
+      color: #e2e2e2;
+    }
+
+    footer .copyright {
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+      
+      header {
+        padding: 12px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      
+      .header-left {
+        gap: 10px;
+      }
+      
+      header .logo {
+        height: 40px;
+      }
+      
+      header h1 {
+        font-size: 1.2rem;
+        white-space: nowrap;
+      }
+      
+      .header-right {
+        gap: 12px;
+      }
+      
+      #clock {
+        display: none;
+      }
+      
+      .language-switcher {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+      
+      main {
+        margin: 20px auto;
+        padding: 0 16px;
+      }
+      
+      main h2 {
+        font-size: 1.4rem;
+        margin-bottom: 8px;
+      }
+      
+      .subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 30px;
+      }
+      
+      .container {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .box {
+        width: 100%;
+        min-width: auto;
+        padding: 16px;
+      }
+      
+      .box h3 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+      }
+      
+      .btn {
+        padding: 12px 0;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+      }
+      
+      footer {
+        padding: 16px;
+      }
+      
+      footer .social-icons a {
+        margin: 0 10px;
+        font-size: 1.4rem;
+      }
+      
+      footer .copyright {
+        margin-top: 12px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1rem;
+      }
+      
+      main h2 {
+        font-size: 1.2rem;
+      }
+      
+      .box {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" id="logo">
+    <h1 id="title">Chemical Data Analyzer</h1>
+  </div>
+  <div class="header-right">
+    <div id="clock" title="Current Time"></div>
+    <button class="language-switcher" id="lang-switch">TR</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h2 id="main-title">Ne yapmak istersiniz?</h2>
+    <p class="subtitle" id="subtitle">Veri yükleyin, analiz edin ve raporlar oluşturun</p>
+  </section>
+
+  <div class="container">
+    <section class="box" id="upload-section">
+      <h3 id="section1-title">Veri Yükleme</h3>
+      <button class="btn" id="manuel">Manuel Veri Girişi</button>
+      <button class="btn" id="csv">CSV Dosyası Yükle</button>
+      <button class="btn" id="excel">Excel'den CSV'ye Dönüştür</button>
+    </section>
+
+    <section class="box" id="analysis-section">
+      <h3 id="section2-title">Veri Analizi</h3>
+      <button class="btn" id="tahmin">Tahmin Yap</button>
+      <button class="btn" id="gorsellestirme">Görselleştirme</button>
+      <button class="btn" id="rapor">Model Karşılaştırması</button>
+      <button class="btn" id="yardim">Yardım</button>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="contact">
+      <strong id="contact-label">İletişim:</strong> <span id="contact-info">sefaakkoc@outlook.com | @sefaakkoc</span>
+    </div>
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="https://github.com/sefaakkoc"><i class="fab fa-github"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+    </div>
+    <div class="copyright" id="copyright">© 2023 Chemical Data Analyzer PRO</div>
+  </div>
+</footer>
+
+<script>
+  function updateClock() {
+    const clock = document.getElementById('clock');
+    if (!clock) return;
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    
+    clock.textContent = timeString;
+  }
+
+  const translations = {
+    tr: {
+      title: "Molytica Chemical Analyser",
+      mainTitle: "Ne yapmak istersiniz?",
+      subtitle: "Veri yükleyin, analiz edin ve raporlar oluşturun",
+      section1Title: "Veri Yükleme",
+      manuel: "Manuel Veri Girişi",
+      csv: "CSV Dosyası Yükle",
+      excel: "Excel'den CSV'ye Dönüştür",
+      section2Title: "Veri Analizi",
+      tahmin: "Tahmin Yap",
+      gorsellestirme: "Görselleştirme",
+      rapor: "Model Karşılaştırması",
+      yardim: "Yardım",
+      contact: "İletişim:",
+      contactInfo: "sefaakkoc@outlook.com | @sefaakkoc",
+      copyright: "© 2025 Molytica Chemical Analyser"
+    },
+    en: {
+      title: "Molytica Chemical Analyser",
+      mainTitle: "What would you like to do?",
+      subtitle: "Upload data, analyze and generate reports",
+      section1Title: "Data Upload",
+      manuel: "Manual Data Entry",
+      csv: "Upload CSV File",
+      excel: "Convert Excel to CSV",
+      section2Title: "Data Analysis",
+      tahmin: "Make Prediction",
+      gorsellestirme: "Visualization",
+      rapor: "Model Comparison",
+      yardim: "Help",
+      contact: "Contact:",
+      contactInfo: "sefaakkoc@outlook.com | @sefaakkoc",
+      copyright: "© 2025 Molytica Chemical Analyser "
+    }
+  };
+
+  function setLanguage(lang) {
+    const elements = {
+      '#title': 'title',
+      '#main-title': 'mainTitle',
+      '#subtitle': 'subtitle',
+      '#section1-title': 'section1Title',
+      '#manuel': 'manuel',
+      '#csv': 'csv',
+      '#excel': 'excel',
+      '#section2-title': 'section2Title',
+      '#tahmin': 'tahmin',
+      '#gorsellestirme': 'gorsellestirme',
+      '#rapor': 'rapor',
+      '#yardim': 'yardim',
+      '#contact-label': 'contact',
+      '#contact-info': 'contactInfo',
+      '#copyright': 'copyright'
+    };
+
+    Object.entries(elements).forEach(([selector, key]) => {
+      const element = document.querySelector(selector);
+      if (element) {
+        element.textContent = translations[lang][key];
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const langSwitcher = document.getElementById('lang-switch');
+    let currentLang = 'tr';
+
+    if (langSwitcher) {
+      langSwitcher.addEventListener('click', () => {
+        currentLang = currentLang === 'tr' ? 'en' : 'tr';
+        setLanguage(currentLang);
+        langSwitcher.textContent = currentLang.toUpperCase();
+        
+        langSwitcher.classList.add('animate');
+        setTimeout(() => {
+          langSwitcher.classList.remove('animate');
+        }, 300);
+      });
+    }
+
+    setLanguage(currentLang);
+    
+    document.querySelectorAll('#manuel, #csv, #excel, #tahmin, #gorsellestirme, #rapor, #yardim').forEach(button => {
+      button.addEventListener('click', () => {
+        const urls = {
+          '#manuel': '/manual',
+          '#csv': '/upload-csv',
+          '#excel': '/excel_to_csv',
+          '#tahmin': '/predict',
+          '#gorsellestirme': '/visual',
+          '#rapor': '/compare-models',
+          '#yardim': '/help'
+        };
+        window.location.href = urls[`#${button.id}`];
+      });
+    });
+    
+    document.querySelector('.logo').addEventListener('click', () => {
+      window.location.href = '/';
+    });
+  });
+</script>
+</body>
+</html>

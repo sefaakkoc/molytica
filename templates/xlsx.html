@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XLSX to CSV Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #111;
+            --secondary-color: #666;
+            --light-color: #fafafa;
+            --border-color: #d2d2d2;
+            --shadow-color: rgba(0,0,0,0.08);
+            --bg-primary: #fff;
+            --bg-secondary: #f4f4f4;
+            --heading-color: #111;
+            --text-primary: #111;
+            --text-secondary: #555;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        
+        header .logo { 
+            height: 60px; 
+            cursor: pointer; 
+        }
+        
+        header h1 { 
+            font-size: 1.8rem; 
+            margin: 0; 
+            color: var(--heading-color); 
+        }
+
+        .header-right { 
+            display: flex; 
+            gap: 30px; 
+            align-items: center; 
+        }
+        
+        #clock { 
+            font-size: 1.3rem; 
+            color: var(--heading-color); 
+        }
+
+        .language-switcher {
+            background: none;
+            border: 2px solid var(--heading-color);
+            padding: 8px 15px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--heading-color);
+            transition: all 0.3s;
+        }
+
+        .language-switcher:hover {
+            background: var(--heading-color);
+            color: #fff;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        main h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--heading-color);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .converter-container {
+            background: #fff;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            padding: 40px;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background: #fafafa;
+            /* Removed border-radius */
+            border-radius: 0;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary-color);
+            background: #f0f0f0;
+        }
+
+        .drop-zone i {
+            font-size: 48px;
+            color: #222;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .drop-zone span {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .file-info {
+            padding: 15px;
+            background: var(--light-color);
+            margin-top: 15px;
+            display: none;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            /* Removed border-radius */
+            border-radius: 0;
+        }
+
+        .file-info.show { 
+            display: block; 
+        }
+
+        .success-message {
+            color: #28a745;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .options-section { 
+            margin-bottom: 30px; 
+        }
+        
+        .options-section h3 {
+            color: var(--heading-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-group { 
+            margin-bottom: 20px; 
+        }
+        
+        .option-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .option-group select, 
+        .option-group input[type="text"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            background: #fff;
+            color: var(--text-primary);
+            border-radius: 4px;
+        }
+
+        .option-group select:focus, 
+        .option-group input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input { 
+            width: auto; 
+        }
+
+        .action-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            /* Original button colors */
+            background: #e2e2e2;
+            color: #fff;
+            /* Removed border-radius */
+            border-radius: 0;
+        }
+
+        .btn i { 
+            font-size: 1rem; 
+        }
+
+        .btn:hover { 
+            background: #333; 
+        }
+
+        .btn:disabled {
+            background: #888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .preview-section {
+            background: #fff;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .preview-section h3 {
+            color: var(--heading-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-container {
+            max-height: 500px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            background: var(--light-color);
+            border-radius: 4px;
+        }
+
+        #csvPreview {
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .hidden { 
+            display: none; 
+        }
+
+        footer {
+            background: var(--bg-secondary);
+            padding: 20px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer .footer-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        
+        footer .contact { 
+            margin-bottom: 15px; 
+        }
+        
+        footer .copyright { 
+            margin-top: 20px; 
+            font-size: 0.9rem; 
+        }
+
+        @media (max-width: 768px) {
+            header { 
+                padding: 15px 20px; 
+                flex-direction: column; 
+                gap: 15px; 
+            }
+            
+            .header-left, .header-right { 
+                width: 100%; 
+                justify-content: center; 
+            }
+            
+            .converter-container { 
+                padding: 20px; 
+            }
+            
+            .drop-zone { 
+                padding: 30px 20px; 
+            }
+            
+            .action-section { 
+                flex-direction: column; 
+            }
+            
+            .btn { 
+                width: 100%; 
+            }
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--primary-color);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]:hover {
+            accent-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" id="logo">
+            <h1 id="app-title">XLSX to CSV Converter</h1>
+        </div>
+        <div class="header-right">
+            <div id="clock" title="Current Time"></div>
+            <button class="language-switcher" id="lang-switch">EN</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 id="main-title">Excel to CSV Converter</h2>
+        <p class="subtitle" id="subtitle">Convert Excel files to CSV with advanced options</p>
+
+        <div class="converter-container">
+            <div class="upload-section">
+                <div class="drop-zone" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p id="drop-text">Drag & Drop your XLSX file here</p>
+                    <span id="drop-or">or</span>
+                    <button id="browseBtn" class="btn"><i class="fas fa-folder-open"></i> <span id="browse-text">Browse Files</span></button>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <div class="options-section">
+                <h3><i class="fas fa-cog"></i> <span id="options-title">Conversion Options</span></h3>
+                
+                <div class="option-group">
+                    <label for="delimiter" id="delimiter-label">Field Delimiter:</label>
+                    <select id="delimiter">
+                        <option value="," selected id="delim-comma">Comma ( , )</option>
+                        <option value=";" id="delim-semicolon">Semicolon ( ; )</option>
+                        <option value="\t" id="delim-tab">Tab ( \t )</option>
+                        <option value="|" id="delim-pipe">Pipe ( | )</option>
+                        <option value="custom" id="delim-custom">Custom...</option>
+                    </select>
+                    <input type="text" id="customDelimiter" placeholder="Enter custom delimiter" style="display: none;" maxlength="1">
+                </div>
+
+                <div class="option-group">
+                    <label for="encoding" id="encoding-label">Encoding:</label>
+                    <select id="encoding">
+                        <option value="utf-8" selected id="enc-utf8">UTF-8</option>
+                        <option value="windows-1252" id="enc-win1252">Windows-1252</option>
+                        <option value="iso-8859-1" id="enc-iso8859">ISO-8859-1</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="lineEndings" id="line-endings-label">Line Endings:</label>
+                    <select id="lineEndings">
+                        <option value="\n" id="line-unix">Unix (LF)</option>
+                        <option value="\r\n" selected id="line-windows">Windows (CRLF)</option>
+                    </select>
+                </div>
+
+                <div class="option-group checkbox-group">
+                    <input type="checkbox" id="includeHeader" checked>
+                    <label for="includeHeader" id="header-label">Include header row</label>
+                </div>
+
+                <div class="option-group checkbox-group">
+                    <input type="checkbox" id="quoteAll">
+                    <label for="quoteAll" id="quote-label">Quote all fields</label>
+                </div>
+
+                <div class="option-group">
+                    <label for="sheetSelection" id="sheet-label">Sheet Selection:</label>
+                    <select id="sheetSelection" disabled>
+                        <option value="auto" selected id="sheet-auto">Auto (first sheet)</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="dateFormat" id="date-label">Date Format:</label>
+                    <select id="dateFormat">
+                        <option value="yyyy-mm-dd" selected id="date-iso">YYYY-MM-DD</option>
+                        <option value="mm/dd/yyyy" id="date-us">MM/DD/YYYY</option>
+                        <option value="dd/mm/yyyy" id="date-eu">DD/MM/YYYY</option>
+                        <option value="iso" id="date-full">ISO (with time)</option>
+                        <option value="original" id="date-original">Keep original format</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button id="convertBtn" class="btn" disabled>
+                    <i class="fas fa-exchange-alt"></i> <span id="convert-text">Convert to CSV</span>
+                </button>
+                <button id="downloadBtn" class="btn" disabled>
+                    <i class="fas fa-download"></i> <span id="download-text">Download CSV</span>
+                </button>
+                <button id="previewBtn" class="btn" disabled>
+                    <i class="fas fa-eye"></i> <span id="preview-text">Preview</span>
+                </button>
+                <button id="resetBtn" class="btn">
+                    <i class="fas fa-redo"></i> <span id="reset-text">Reset</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-section hidden" id="previewSection">
+            <h3><i class="fas fa-table"></i> <span id="preview-title">CSV Preview</span></h3>
+            <div class="preview-container">
+                <pre id="csvPreview"></pre>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="contact">
+                <strong id="contact-text">Contact:</strong> <span id="contact-email">sefaakkoc@outlook.com</span> | <span id="contact-phone">@sefaakkoc</span>
+            </div>
+            <div class="copyright" id="copyright">© 2025 Molytica Chemical Analyser</div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const dropZone = document.getElementById('dropZone');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const previewSection = document.getElementById('previewSection');
+            const csvPreview = document.getElementById('csvPreview');
+            const delimiterSelect = document.getElementById('delimiter');
+            const customDelimiter = document.getElementById('customDelimiter');
+            const sheetSelection = document.getElementById('sheetSelection');
+            const clockElement = document.getElementById('clock');
+            const languageSwitcher = document.getElementById('lang-switch');
+            const logo = document.getElementById('logo');
+            
+            // Language texts
+            const languages = {
+                en: {
+                    appTitle: "XLSX to CSV Converter",
+                    mainTitle: "Excel to CSV Converter",
+                    subtitle: "Convert Excel files to CSV with advanced options",
+                    dropText: "Drag & Drop your XLSX file here",
+                    dropOr: "or",
+                    browseText: "Browse Files",
+                    optionsTitle: "Conversion Options",
+                    delimiterLabel: "Field Delimiter:",
+                    delimComma: "Comma ( , )",
+                    delimSemicolon: "Semicolon ( ; )",
+                    delimTab: "Tab ( \t )",
+                    delimPipe: "Pipe ( | )",
+                    delimCustom: "Custom...",
+                    encodingLabel: "Encoding:",
+                    encUtf8: "UTF-8",
+                    encWin1252: "Windows-1252",
+                    encIso8859: "ISO-8859-1",
+                    lineEndingsLabel: "Line Endings:",
+                    lineUnix: "Unix (LF)",
+                    lineWindows: "Windows (CRLF)",
+                    headerLabel: "Include header row",
+                    quoteLabel: "Quote all fields",
+                    sheetLabel: "Sheet Selection:",
+                    sheetAuto: "Auto (first sheet)",
+                    dateLabel: "Date Format:",
+                    dateIso: "YYYY-MM-DD",
+                    dateUs: "MM/DD/YYYY",
+                    dateEu: "DD/MM/YYYY",
+                    dateFull: "ISO (with time)",
+                    dateOriginal: "Keep original format",
+                    convertText: "Convert to CSV",
+                    downloadText: "Download CSV",
+                    previewText: "Preview",
+                    resetText: "Reset",
+                    previewTitle: "CSV Preview",
+                    selectedFile: "Selected File:",
+                    size: "Size:",
+                    type: "Type:",
+                    successMsg: "File converted successfully!",
+                    previewTruncated: "preview truncated",
+                    contactText: "Contact:",
+                    contactEmail: "sefaakkoc@outlook.com",
+                    contactPhone: "@sefaakkoc",
+                    copyright: "© 2025 Molytica Chemical Analyser"
+                },
+                tr: {
+                    appTitle: "XLSX'den CSV'ye Dönüştürücü",
+                    mainTitle: "Excel'den CSV'ye Dönüştürücü",
+                    subtitle: "Excel dosyalarını gelişmiş seçeneklerle CSV'ye dönüştürün",
+                    dropText: "XLSX dosyanızı buraya sürükleyip bırakın",
+                    dropOr: "veya",
+                    browseText: "Dosya Seç",
+                    optionsTitle: "Dönüştürme Seçenekleri",
+                    delimiterLabel: "Alan Ayracı:",
+                    delimComma: "Virgül ( , )",
+                    delimSemicolon: "Noktalı Virgül ( ; )",
+                    delimTab: "Sekme ( \t )",
+                    delimPipe: "Dikey Çizgi ( | )",
+                    delimCustom: "Özel...",
+                    encodingLabel: "Kodlama:",
+                    encUtf8: "UTF-8",
+                    encWin1252: "Windows-1252",
+                    encIso8859: "ISO-8859-1",
+                    lineEndingsLabel: "Satır Sonları:",
+                    lineUnix: "Unix (LF)",
+                    lineWindows: "Windows (CRLF)",
+                    headerLabel: "Başlık satırını dahil et",
+                    quoteLabel: "Tüm alanları tırnak içine al",
+                    sheetLabel: "Sayfa Seçimi:",
+                    sheetAuto: "Otomatik (ilk sayfa)",
+                    dateLabel: "Tarih Formatı:",
+                    dateIso: "YYYY-AA-GG",
+                    dateUs: "AA/GG/YYYY",
+                    dateEu: "GG/AA/YYYY",
+                    dateFull: "ISO (zaman dahil)",
+                    dateOriginal: "Orijinal formatı koru",
+                    convertText: "CSV'ye Dönüştür",
+                    downloadText: "CSV İndir",
+                    previewText: "Önizleme",
+                    resetText: "Sıfırla",
+                    previewTitle: "CSV Önizleme",
+                    selectedFile: "Seçilen Dosya:",
+                    size: "Boyut:",
+                    type: "Tür:",
+                    successMsg: "Dosya başarıyla dönüştürüldü!",
+                    previewTruncated: "önizleme kısaltıldı",
+                    contactText: "İletişim:",
+                    contactEmail: "sefaakkoc@outlook.com",
+                    contactPhone: "@sefaakkoc",
+                    copyright: "© 2025 Molytica Chemical Analyser"
+                }
+            };
+            
+            // State variables
+            let file = null;
+            let csvData = null;
+            let workbook = null;
+            let currentLanguage = 'en';
+            
+            // Initialize clock
+            function updateClock() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                clockElement.textContent = timeString;
+            }
+            
+            setInterval(updateClock, 1000);
+            updateClock();
+            
+            // Language switcher functionality
+            function switchLanguage(lang) {
+                currentLanguage = lang;
+                const texts = languages[lang];
+                
+                // Update all text elements
+                document.getElementById('app-title').textContent = texts.appTitle;
+                document.getElementById('main-title').textContent = texts.mainTitle;
+                document.getElementById('subtitle').textContent = texts.subtitle;
+                document.getElementById('drop-text').textContent = texts.dropText;
+                document.getElementById('drop-or').textContent = texts.dropOr;
+                document.getElementById('browse-text').textContent = texts.browseText;
+                document.getElementById('options-title').textContent = texts.optionsTitle;
+                document.getElementById('delimiter-label').textContent = texts.delimiterLabel;
+                document.getElementById('delim-comma').textContent = texts.delimComma;
+                document.getElementById('delim-semicolon').textContent = texts.delimSemicolon;
+                document.getElementById('delim-tab').textContent = texts.delimTab;
+                document.getElementById('delim-pipe').textContent = texts.delimPipe;
+                document.getElementById('delim-custom').textContent = texts.delimCustom;
+                document.getElementById('encoding-label').textContent = texts.encodingLabel;
+                document.getElementById('enc-utf8').textContent = texts.encUtf8;
+                document.getElementById('enc-win1252').textContent = texts.encWin1252;
+                document.getElementById('enc-iso8859').textContent = texts.encIso8859;
+                document.getElementById('line-endings-label').textContent = texts.lineEndingsLabel;
+                document.getElementById('line-unix').textContent = texts.lineUnix;
+                document.getElementById('line-windows').textContent = texts.lineWindows;
+                document.getElementById('header-label').textContent = texts.headerLabel;
+                document.getElementById('quote-label').textContent = texts.quoteLabel;
+                document.getElementById('sheet-label').textContent = texts.sheetLabel;
+                document.getElementById('sheet-auto').textContent = texts.sheetAuto;
+                document.getElementById('date-label').textContent = texts.dateLabel;
+                document.getElementById('date-iso').textContent = texts.dateIso;
+                document.getElementById('date-us').textContent = texts.dateUs;
+                document.getElementById('date-eu').textContent = texts.dateEu;
+                document.getElementById('date-full').textContent = texts.dateFull;
+                document.getElementById('date-original').textContent = texts.dateOriginal;
+                document.getElementById('convert-text').textContent = texts.convertText;
+                document.getElementById('download-text').textContent = texts.downloadText;
+                document.getElementById('preview-text').textContent = texts.previewText;
+                document.getElementById('reset-text').textContent = texts.resetText;
+                document.getElementById('preview-title').textContent = texts.previewTitle;
+                document.getElementById('contact-text').textContent = texts.contactText;
+                document.getElementById('contact-email').textContent = texts.contactEmail;
+                document.getElementById('contact-phone').textContent = texts.contactPhone;
+                document.getElementById('copyright').textContent = texts.copyright;
+                
+                // Update file info if exists
+                if (file) {
+                    updateFileInfo();
+                }
+            }
+            
+            languageSwitcher.addEventListener('click', function() {
+                currentLanguage = currentLanguage === 'en' ? 'tr' : 'en';
+                this.textContent = currentLanguage === 'en' ? 'TR' : 'EN';
+                switchLanguage(currentLanguage);
+            });
+            
+            // Event Listeners
+            browseBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+            convertBtn.addEventListener('click', convertToCSV);
+            downloadBtn.addEventListener('click', downloadCSV);
+            previewBtn.addEventListener('click', togglePreview);
+            resetBtn.addEventListener('click', resetConverter);
+            delimiterSelect.addEventListener('change', toggleCustomDelimiter);
+            logo.addEventListener('click', () => window.location.href = window.location.origin + '/');
+            
+            // Functions
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                if (files.length) {
+                    file = files[0];
+                    updateFileInfo();
+                    loadWorkbook();
+                }
+            }
+            
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.style.borderColor = 'var(--primary-color)';
+                dropZone.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+            }
+            
+            function handleDragLeave(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.style.borderColor = 'var(--border-color)';
+                dropZone.style.backgroundColor = '';
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDragLeave(e);
+                
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    file = files[0];
+                    updateFileInfo();
+                    loadWorkbook();
+                }
+            }
+            
+            function updateFileInfo() {
+                if (file) {
+                    const texts = languages[currentLanguage];
+                    fileInfo.innerHTML = `
+                        <p><strong>${texts.selectedFile}</strong> ${file.name}</p>
+                        <p><strong>${texts.size}</strong> ${formatFileSize(file.size)}</p>
+                        <p><strong>${texts.type}</strong> ${file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}</p>
+                    `;
+                    fileInfo.classList.add('show');
+                    convertBtn.disabled = false;
+                    previewBtn.disabled = false;
+                }
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = currentLanguage === 'en' 
+                    ? ['Bytes', 'KB', 'MB', 'GB'] 
+                    : ['Bayt', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function loadWorkbook() {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    workbook = XLSX.read(data, { type: 'array' });
+                    updateSheetSelection();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            
+            function updateSheetSelection() {
+                if (!workbook) return;
+                
+                sheetSelection.innerHTML = '';
+                sheetSelection.disabled = false;
+                
+                const texts = languages[currentLanguage];
+                const autoOption = document.createElement('option');
+                autoOption.value = 'auto';
+                autoOption.textContent = texts.sheetAuto;
+                autoOption.selected = true;
+                sheetSelection.appendChild(autoOption);
+                
+                workbook.SheetNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    sheetSelection.appendChild(option);
+                });
+            }
+            
+            function toggleCustomDelimiter() {
+                customDelimiter.style.display = this.value === 'custom' ? 'block' : 'none';
+            }
+            
+            function getSelectedDelimiter() {
+                if (delimiterSelect.value === 'custom') {
+                    return customDelimiter.value || ',';
+                }
+                return delimiterSelect.value;
+            }
+            
+            function convertToCSV() {
+                if (!workbook) return;
+                
+                const sheetName = sheetSelection.value === 'auto' ? workbook.SheetNames[0] : sheetSelection.value;
+                const worksheet = workbook.Sheets[sheetName];
+                
+                const options = {
+                    FS: getSelectedDelimiter(),
+                    RS: document.getElementById('lineEndings').value,
+                    skipHidden: false,
+                    blankrows: false,
+                    strip: false,
+                    rawNumbers: true,
+                    dateNF: getDateFormat(),
+                    defval: '',
+                    includeHeader: document.getElementById('includeHeader').checked,
+                    quoteAll: document.getElementById('quoteAll').checked
+                };
+                
+                csvData = XLSX.utils.sheet_to_csv(worksheet, options);
+                downloadBtn.disabled = false;
+                
+                const texts = languages[currentLanguage];
+                fileInfo.innerHTML += `<p class="success-message"><i class="fas fa-check-circle"></i> ${texts.successMsg}</p>`;
+            }
+            
+            function getDateFormat() {
+                const format = document.getElementById('dateFormat').value;
+                switch(format) {
+                    case 'yyyy-mm-dd': return 'yyyy-mm-dd';
+                    case 'mm/dd/yyyy': return 'mm/dd/yyyy';
+                    case 'dd/mm/yyyy': return 'dd/mm/yyyy';
+                    case 'iso': return 'yyyy-mm-dd hh:mm:ss';
+                    case 'original': return undefined;
+                    default: return 'yyyy-mm-dd';
+                }
+            }
+            
+            function downloadCSV() {
+                if (!csvData) return;
+                
+                const blob = new Blob([csvData], { type: 'text/csv;charset=' + document.getElementById('encoding').value });
+                const fileName = file.name.replace(/\.[^/.]+$/, '') + '.csv';
+                saveAs(blob, fileName);
+            }
+            
+            function togglePreview() {
+                if (!csvData) {
+                    convertToCSV();
+                }
+                
+                if (csvData) {
+                    const texts = languages[currentLanguage];
+                    csvPreview.textContent = csvData.length > 1000 
+                        ? csvData.substring(0, 1000) + '\n\n... (' + texts.previewTruncated + ')' 
+                        : csvData;
+                    previewSection.classList.toggle('hidden');
+                }
+            }
+            
+            function resetConverter() {
+                file = null;
+                csvData = null;
+                workbook = null;
+                
+                fileInput.value = '';
+                fileInfo.innerHTML = '';
+                fileInfo.classList.remove('show');
+                convertBtn.disabled = true;
+                downloadBtn.disabled = true;
+                previewBtn.disabled = true;
+                previewSection.classList.add('hidden');
+                
+                const texts = languages[currentLanguage];
+                sheetSelection.innerHTML = `<option value="auto" selected>${texts.sheetAuto}</option>`;
+                sheetSelection.disabled = true;
+                
+                delimiterSelect.value = ',';
+                customDelimiter.style.display = 'none';
+                customDelimiter.value = '';
+                document.getElementById('encoding').value = 'utf-8';
+                document.getElementById('lineEndings').value = '\r\n';
+                document.getElementById('includeHeader').checked = true;
+                document.getElementById('quoteAll').checked = false;
+                document.getElementById('dateFormat').value = 'yyyy-mm-dd';
+            }
+            
+            // Initialize with English language
+            switchLanguage('en');
+        });
+    </script>
+</body>
+</html>
