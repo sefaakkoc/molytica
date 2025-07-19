@@ -1,4 +1,4 @@
-![Model](https://github.com/sefaakkoc/molytica/blob/main/img/Molytica2.png)
+![Model](https://github.com/sefaakkoc/molytica/blob/main/img/Molytica4.png)
 # Molytica (Suzuki-Miyaura Reaction Analyzer)
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
