@@ -9,7 +9,6 @@
 [![NumPy](https://img.shields.io/badge/NumPy-1.24+-lightblue.svg)](https://numpy.org)
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.7+-darkgreen.svg)](https://matplotlib.org)
 [![RDKit](https://img.shields.io/badge/RDKit-2023+-yellow.svg)](https://www.rdkit.org)
-[![SHAP](https://img.shields.io/badge/SHAP-0.42+-pink.svg)](https://shap.readthedocs.io)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 [![Build](https://img.shields.io/badge/Build-Passing-success.svg)](https://github.com/sefaakkoc/molytica)
 [![Version](https://img.shields.io/badge/Version-2.1.0-blue.svg)](https://github.com/sefaakkoc/molytica/releases)
