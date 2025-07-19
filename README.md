@@ -3,7 +3,18 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org)
+[![XGBoost](https://img.shields.io/badge/XGBoost-1.7+-red.svg)](https://xgboost.readthedocs.io)
+[![Pandas](https://img.shields.io/badge/Pandas-2.0+-purple.svg)](https://pandas.pydata.org)
+[![NumPy](https://img.shields.io/badge/NumPy-1.24+-lightblue.svg)](https://numpy.org)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib-3.7+-darkgreen.svg)](https://matplotlib.org)
+[![RDKit](https://img.shields.io/badge/RDKit-2023+-yellow.svg)](https://www.rdkit.org)
+[![SHAP](https://img.shields.io/badge/SHAP-0.42+-pink.svg)](https://shap.readthedocs.io)
+[![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
+[![Build](https://img.shields.io/badge/Build-Passing-success.svg)](https://github.com/sefaakkoc/molytica)
+[![Version](https://img.shields.io/badge/Version-2.1.0-blue.svg)](https://github.com/sefaakkoc/molytica/releases)
+[![Platform](https://img.shields.io/badge/Platform-Web-lightgrey.svg)](https://github.com/sefaakkoc/molytica)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)](https://github.com/sefaakkoc/molytica)
 
 A comprehensive web-based analysis platform for analyzing, optimizing, and simulating Suzuki-Miyaura cross-coupling reactions with additional catalyst analysis and yield prediction pages.
 
