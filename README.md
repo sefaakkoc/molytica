@@ -21,14 +21,14 @@ A comprehensive web-based analysis platform for analyzing, optimizing, and simul
 
 ## New Additional Pages
 
-### 🧪 Catalyst Analysis Page
+### Catalyst Analysis Page
 - **Catalyst Database Browser**: Explore comprehensive catalyst library
 - **Performance Metrics**: Compare catalyst efficiency across different reaction types
 - **Structure-Activity Relationships**: Visualize how catalyst structure affects performance
 - **Recommendation Engine**: Get catalyst suggestions based on your specific reaction
 - **Custom Catalyst Entry**: Add and evaluate your own catalyst designs
 
-### 📊 Yield Prediction Page
+### Yield Prediction Page
 - **ML-Powered Predictions**: Advanced machine learning models for yield forecasting
 - **Multi-Parameter Analysis**: Consider temperature, time, catalyst loading, and solvent effects
 - **Confidence Intervals**: Statistical confidence ranges for predictions
@@ -211,14 +211,14 @@ For issues and questions:
 
 ## Recent Updates (v0.2)
 
-### ✨ New Features
+### New Features
 - **Catalyst Analysis Page**: Comprehensive catalyst database with performance analytics
 - **Yield Prediction Page**: Advanced ML models for accurate yield forecasting
 - **Enhanced Navigation**: Improved user interface with dedicated pages for specialized analyses
 - **Real-time Optimization**: Interactive parameter adjustment tools
 - **Extended Database**: Larger catalyst and reaction database for better predictions
 
-### 🔧 Improvements
+### Improvements
 - **Catalyst Analysis Page**: New dedicated page for catalyst selection and performance comparison
 - **Yield Prediction Page**: Advanced ML-based yield forecasting with real-time optimization
 - **Enhanced User Interface**: Improved navigation with dedicated pages for specialized analyses
