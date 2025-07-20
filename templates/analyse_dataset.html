@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMILES Dönüştürücü</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f0f0f0;
+            --text-primary: #000000;
+            --text-secondary: #333333;
+            --border-color: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            height: 36px;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #clock {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .language-switcher {
+            background: transparent;
+            border: 1px solid var(--text-primary);
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .app-title {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .app-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            padding: 30px 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            background-color: var(--bg-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--text-primary);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary); /* Emoji rengini siyah yaptık */
+        }
+
+        .upload-instructions {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .file-requirements {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Progress */
+        .progress-container {
+            display: none;
+            margin: 25px 0;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+        }
+
+        .progress-title {
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-primary);
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--text-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .progress-message {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Results */
+        .results {
+            display: none;
+            margin-top: 25px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            background-color: var(--bg-secondary);
+        }
+
+        .results-title {
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .stat-card {
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Download */
+        .download-section {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--text-primary);
+            color: var(--bg-primary);
+            text-decoration: none;
+            margin: 0 8px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Error */
+        .error-container {
+            margin: 15px 0;
+        }
+
+        .error {
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header {
+                padding: 10px 15px;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .header-left, .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            #clock {
+                display: none;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            .upload-area {
+                padding: 20px 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .download-btn {
+                display: block;
+                margin: 8px auto;
+                width: 80%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="logo.svg" alt="Logo" class="logo">
+            <div class="header-title" id="headerTitle">MOLYTICA</div>
+        </div>
+        <div class="header-right">
+            <div id="clock"></div>
+            <button class="language-switcher" id="languageSwitcher">TR</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="app-header">
+            <h1 class="app-title" id="appTitle">SMILES Dönüştürücü</h1>
+            <p class="app-description" id="appDescription">Kimyasal bileşikleri SMILES formatına dönüştürün</p>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📄</div>
+            <h3 class="upload-instructions" id="uploadInstructions">CSV Dosyanızı Yükleyin</h3>
+            <p id="uploadText">Dosyayı buraya sürükleyip bırakın veya seçmek için tıklayın</p>
+            <input type="file" id="fileInput" class="file-input" accept=".csv">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()" id="uploadBtn">
+                Dosya Seç
+            </button>
+            <p class="file-requirements" id="fileRequirements">
+                CSV dosyası subs1, subs2, product sütunlarını içermelidir
+            </p>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <h3 class="progress-title" id="progressTitle">İşlem Durumu</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+            <div class="progress-message" id="progressMessage">Başlatılıyor...</div>
+        </div>
+
+        <div class="results" id="results">
+            <h3 class="results-title" id="resultsTitle">İşlem Tamamlandı</h3>
+            <div class="stats-grid" id="statsGrid">
+               
+            </div>
+            <div class="download-section" id="downloadSection">
+               
+            </div>
+        </div>
+
+        <div class="error-container" id="errorContainer">
+           
+        </div>
+    </div>
+
+    <script>
+    
+        const translations = {
+            'tr': {
+                'headerTitle': 'MOLYTICA',
+                'appTitle': 'SMILES Dönüştürücü',
+                'appDescription': 'Kimyasal bileşikleri SMILES formatına dönüştürün',
+                'uploadInstructions': 'CSV Dosyanızı Yükleyin',
+                'uploadText': 'Dosyayı buraya sürükleyip bırakın veya seçmek için tıklayın',
+                'uploadBtn': 'Dosya Seç',
+                'fileRequirements': 'CSV dosyası subs1, subs2, product sütunlarını içermelidir',
+                'progressTitle': 'İşlem Durumu',
+                'resultsTitle': 'İşlem Tamamlandı',
+                'progressMessages': {
+                    'starting': 'Başlatılıyor...',
+                    'processing': 'Dosya işleniyor...',
+                    'converting': 'SMILES formatına dönüştürülüyor...',
+                    'finalizing': 'Sonlandırılıyor...'
+                }
+            },
+            'en': {
+                'headerTitle': 'MOLYTICA',
+                'appTitle': 'SMILES Converter',
+                'appDescription': 'Convert chemical compounds to SMILES format',
+                'uploadInstructions': 'Upload Your CSV File',
+                'uploadText': 'Drag and drop your file here or click to select',
+                'uploadBtn': 'Select File',
+                'fileRequirements': 'CSV file must contain subs1, subs2, product columns',
+                'progressTitle': 'Processing Status',
+                'resultsTitle': 'Processing Completed',
+                'progressMessages': {
+                    'starting': 'Starting...',
+                    'processing': 'Processing file...',
+                    'converting': 'Converting to SMILES format...',
+                    'finalizing': 'Finalizing...'
+                }
+            }
+        };
+
+    
+        let currentTaskId = null;
+        let progressInterval = null;
+        let currentLanguage = 'tr';
+        
+    
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const progressMessage = document.getElementById('progressMessage');
+        const results = document.getElementById('results');
+        const statsGrid = document.getElementById('statsGrid');
+        const downloadSection = document.getElementById('downloadSection');
+        const errorContainer = document.getElementById('errorContainer');
+        
+    
+        function updatePageLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+            
+        
+            document.getElementById('headerTitle').textContent = t.headerTitle;
+            document.getElementById('appTitle').textContent = t.appTitle;
+            document.getElementById('appDescription').textContent = t.appDescription;
+            document.getElementById('uploadInstructions').textContent = t.uploadInstructions;
+            document.getElementById('uploadText').textContent = t.uploadText;
+            document.getElementById('uploadBtn').textContent = t.uploadBtn;
+            document.getElementById('fileRequirements').textContent = t.fileRequirements;
+            document.getElementById('progressTitle').textContent = t.progressTitle;
+            document.getElementById('resultsTitle').textContent = t.resultsTitle;
+            
+        
+            document.getElementById('languageSwitcher').textContent = lang.toUpperCase();
+        }
+        
+    
+        function updateClock() {
+            const now = new Date();
+            const clockElement = document.getElementById('clock');
+            if (clockElement) {
+                clockElement.textContent = now.toLocaleTimeString(currentLanguage === 'tr' ? 'tr-TR' : 'en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            }
+        }
+        
+    
+        function showError(message) {
+            errorContainer.innerHTML = `
+                <div class="error">
+                    ${message}
+                </div>
+            `;
+        }
+        
+    
+        function hideError() {
+            errorContainer.innerHTML = '';
+        }
+        
+    
+        function showProgress() {
+            progressContainer.style.display = 'block';
+        }
+        
+    
+        function hideProgress() {
+            progressContainer.style.display = 'none';
+        }
+        
+    
+        function showResults() {
+            results.style.display = 'block';
+        }
+        
+    
+        function hideResults() {
+            results.style.display = 'none';
+        }
+        
+    
+        function updateProgress(data) {
+            progressFill.style.width = `${data.percentage}%`;
+            progressText.textContent = `${data.percentage}%`;
+            
+        
+            const t = translations[currentLanguage];
+            let message = t.progressMessages.starting;
+            
+            if (data.message_key && t.progressMessages[data.message_key]) {
+                message = t.progressMessages[data.message_key];
+            } else if (data.message) {
+                message = data.message;
+            }
+            
+            progressMessage.textContent = message;
+        }
+        
+    
+        function handleFileUpload() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.csv')) {
+                const errorMsg = currentLanguage === 'tr' 
+                    ? 'Lütfen sadece CSV dosyaları yükleyin.' 
+                    : 'Please upload only CSV files.';
+                showError(errorMsg);
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            hideError();
+            showProgress();
+            hideResults();
+            
+        
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                currentTaskId = data.task_id;
+                startProgressMonitoring();
+            })
+            .catch(error => {
+                const errorMsg = currentLanguage === 'tr' 
+                    ? `Dosya yükleme hatası: ${error.message}` 
+                    : `File upload error: ${error.message}`;
+                showError(errorMsg);
+                hideProgress();
+            });
+        }
+        
+    
+        function startProgressMonitoring() {
+            progressInterval = setInterval(() => {
+                if (!currentTaskId) return;
+                
+            
+                fetch(`/progress/${currentTaskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    updateProgress(data);
+                    
+                    if (data.status === 'completed') {
+                        clearInterval(progressInterval);
+                        displayResults(data);
+                    } else if (data.status === 'error') {
+                        clearInterval(progressInterval);
+                        showError(data.message);
+                        hideProgress();
+                    }
+                })
+                .catch(error => {
+                    clearInterval(progressInterval);
+                    const errorMsg = currentLanguage === 'tr' 
+                        ? `İlerleme takip hatası: ${error.message}` 
+                        : `Progress tracking error: ${error.message}`;
+                    showError(errorMsg);
+                    hideProgress();
+                });
+            }, 1000);
+        }
+        
+    
+        function displayResults(data) {
+            hideProgress();
+            
+        
+            let statsHTML = '';
+            for (const [column, stats] of Object.entries(data.stats)) {
+                statsHTML += `
+                    <div class="stat-card">
+                        <div class="stat-title">${column.toUpperCase()}</div>
+                        <div class="stat-value">${stats.success}/${stats.total}</div>
+                        <div>${stats.percentage.toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+            statsGrid.innerHTML = statsHTML;
+            
+        
+            const t = translations[currentLanguage];
+            let downloadHTML = `
+                <button class="download-btn" onclick="window.location.href='/download/${data.output_file}'">
+                    ${currentLanguage === 'tr' ? 'Sonuçları İndir' : 'Download Results'}
+                </button>
+            `;
+            
+            if (data.failed_file) {
+                downloadHTML += `
+                    <button class="download-btn" onclick="window.location.href='/download/${data.failed_file}'">
+                        ${currentLanguage === 'tr' ? 'Hatalı Kayıtları İndir' : 'Download Failed Records'}
+                    </button>
+                `;
+            }
+            
+            downloadSection.innerHTML = downloadHTML;
+            showResults();
+        }
+        
+    
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--text-primary)';
+            uploadArea.style.backgroundColor = 'var(--bg-primary)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.backgroundColor = 'var(--bg-secondary)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.backgroundColor = 'var(--bg-secondary)';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload();
+            }
+        });
+        
+    
+        fileInput.addEventListener('change', handleFileUpload);
+        
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+        
+            const langSwitcher = document.getElementById('languageSwitcher');
+            langSwitcher.addEventListener('click', () => {
+                const newLang = currentLanguage === 'tr' ? 'en' : 'tr';
+                updatePageLanguage(newLang);
+            });
+            
+        
+            updatePageLanguage(currentLanguage);
+        });
+    </script>
+</body>
+</html>
