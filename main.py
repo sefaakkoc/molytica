@@ -948,7 +948,7 @@ def save_data():
 
 @app.route('/compare-models')
 def compare_models():
-    return render_template('messi.html')
+    return render_template('compare.html')
 
 @app.route('/get_xml_files')
 def get_xml_files():
