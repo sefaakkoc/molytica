@@ -43,12 +43,12 @@ from sklearn.metrics import mean_absolute_error, r2_score
 warnings.filterwarnings('ignore', category=UserWarning)
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this' 
+app.secret_key = 'your-secret-key-change-this'
 logging.basicConfig(level=logging.DEBUG)
 
 rowcount = 0
-progress_data = {} 
-smiles_cache = {} 
+progress_data = {}
+smiles_cache = {}
 
 DATASET_LOG_DIR2 = 'static/datasets'
 OUTPUTS_DIR = 'static/datasets'
@@ -85,224 +85,13 @@ if platform.system() == "Windows":
     windows_console = WindowsConsole()
     locale.setlocale(locale.LC_ALL, 'turkish')
 
-class UltimateSmilesConverter:
-    def __init__(self, task_id):
-        self.cache = {}
-        self.failed_chemicals = defaultdict(list)
-        self.task_id = task_id
-        self.methods = [
-            self._try_common_names,
-            self._try_pubchempy,
-            self._try_pubchem_api,
-            self._try_cactus,
-            self._try_chemspider,
-            self._try_opsin,
-            self._try_chembl
-        ]
-        self.session = requests.Session()
-        self.session.headers.update({'User-Agent': 'Mozilla/5.0'})
-
-    def _update_progress(self, current, total, message=""):
-        if self.task_id in progress_data:
-            progress_data[self.task_id]['current'] = int(current)
-            progress_data[self.task_id]['total'] = int(total)
-            progress_data[self.task_id]['percentage'] = int((current / total) * 100) if total > 0 else 0
-            progress_data[self.task_id]['message'] = str(message)
-
-    def _try_common_names(self, name):
-        common_names = {
-            'phenylboronic acid': 'B(c1ccccc1)(O)O',
-            '1,1\'-biphenyl': 'c1ccc(cc1)-c2ccccc2',
-            'bromobenzene': 'Br-c1ccccc1',
-            'potassium carbonate': 'C(=O)([O-])[O-].[K+].[K+]',
-            'propan-2-ol': 'CC(C)O',
-            'water': 'O'
-        }
-        result = common_names.get(name.lower())
-        if not result:
-            self.failed_chemicals[name].append('common_names')
-        return result
-
-    def _try_pubchempy(self, name):
-        try:
-            compounds = get_compounds(name, namespace='name', timeout=20)
-            if compounds:
-                return compounds[0].isomeric_smiles
-            self.failed_chemicals[name].append('pubchempy')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'pubchempy: {str(e)}')
-        return None
-
-    def _try_pubchem_api(self, name):
-        try:
-            url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{quote(name)}/property/IsomericSMILES/JSON"
-            response = self.session.get(url, timeout=25)
-            if response.status_code == 200:
-                return response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
-            self.failed_chemicals[name].append(f'pubchem_api: HTTP {response.status_code}')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'pubchem_api: {str(e)}')
-        return None
-
-    def _try_cactus(self, name):
-        try:
-            url = f"https://cactus.nci.nih.gov/chemical/structure/{quote(name)}/smiles"
-            response = self.session.get(url, timeout=25)
-            if response.status_code == 200:
-                return response.text.strip()
-            self.failed_chemicals[name].append(f'cactus: HTTP {response.status_code}')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'cactus: {str(e)}')
-        return None
-
-    def _try_chemspider(self, name):
-        try:
-            url = f"http://www.chemspider.com/Search.asmx/SimpleSearch?query={quote(name)}"
-            response = self.session.get(url, timeout=25)
-            if response.status_code == 200 and '<string>' in response.text:
-                csid = response.text.split('<string>')[1].split('</string>')[0]
-                if csid:
-                    smiles_url = f"http://www.chemspider.com/Search.asmx/GetCompoundInfo?CSID={csid}"
-                    smiles_response = self.session.get(smiles_url, timeout=25)
-                    if smiles_response.status_code == 200 and '<SMILES>' in smiles_response.text:
-                        return smiles_response.text.split('<SMILES>')[1].split('</SMILES>')[0]
-            self.failed_chemicals[name].append('chemspider')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'chemspider: {str(e)}')
-        return None
-
-    def _try_opsin(self, name):
-        try:
-            url = f"https://opsin.ch.cam.ac.uk/opsin/{quote(name)}.smi"
-            response = self.session.get(url, timeout=25)
-            if response.status_code == 200:
-                return response.text.strip()
-            self.failed_chemicals[name].append(f'opsin: HTTP {response.status_code}')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'opsin: {str(e)}')
-        return None
-
-    def _try_chembl(self, name):
-        try:
-            url = f"https://www.ebi.ac.uk/chembl/api/data/molecule?pref_name__iexact={quote(name)}&format=json"
-            response = self.session.get(url, timeout=25)
-            if response.status_code == 200:
-                data = response.json()
-                if data['molecules']:
-                    return data['molecules'][0]['molecule_structures']['canonical_smiles']
-            self.failed_chemicals[name].append('chembl')
-        except Exception as e:
-            self.failed_chemicals[name].append(f'chembl: {str(e)}')
-        return None
-
-    def get_smiles(self, name):
-        if not name or pd.isna(name):
-            return None
-
-        name = str(name).strip()
-        if not name:
-            return None
-
-        if name in self.cache:
-            return self.cache[name]
-
-        with ThreadPoolExecutor(max_workers=len(self.methods)) as executor:
-            futures = {executor.submit(method, name): method.__name__ for method in self.methods}
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    self.cache[name] = result
-                    return result
-
-        self.cache[name] = None
-        return None
-
-    def process_reaction_data(self, input_csv):
-        try:
-            df = pd.read_csv(input_csv)
-            target_columns = ['subs1', 'subs2', 'product']
-            total_chems = int(sum(df[col].notna().sum() for col in target_columns))
-            
-            progress_data[self.task_id] = {
-                'current': 0,
-                'total': total_chems,
-                'percentage': 0,
-                'message': 'Starting...',
-                'status': 'processing'
-            }
-
-            current_count = 0
-            for col in target_columns:
-                df[f'{col}_SMILES'] = None
-                self._update_progress(current_count, total_chems, f'Processing {col} column...')
-                
-                for idx, chem in df[col].items():
-                    if pd.notna(chem):
-                        df.at[idx, f'{col}_SMILES'] = self.get_smiles(chem)
-                        current_count += 1
-                        success_count = int(df[f"{col}_SMILES"].notna().sum())
-                        self._update_progress(current_count, total_chems, 
-                                            f'{col}: {success_count}/{int(idx)+1}')
-
-           
-            os.makedirs('static/datasets', exist_ok=True)
-            
-           
-            timestamp = int(time.time())
-            output_file = f'static/datasets/reactions_with_smiles_{timestamp}.csv'
-            failed_file = f'static/datasets/failed_conversions_{timestamp}.csv'
-
-           
-            df.to_csv(output_file, index=False)
-
-           
-            failed_data = []
-            for chem, methods in self.failed_chemicals.items():
-                if chem in self.cache and self.cache[chem] is None:
-                    failed_data.append({
-                        'Chemical': chem,
-                        'Failed Methods': ', '.join(methods),
-                        'Found': 'No'
-                    })
-
-            failed_df = pd.DataFrame(failed_data)
-            if not failed_df.empty:
-                failed_df.to_csv(failed_file, index=False)
-
-           
-            stats = {}
-            for col in target_columns:
-                total = int(df[col].notna().sum())
-                success = int(df[f'{col}_SMILES'].notna().sum())
-                percentage = float(success/total*100 if total > 0 else 0)
-                stats[col] = {'success': success, 'total': total, 'percentage': percentage}
-
-            progress_data[self.task_id]['status'] = 'completed'
-            progress_data[self.task_id]['message'] = 'Processing complete!'
-            progress_data[self.task_id]['output_file'] = output_file
-            progress_data[self.task_id]['failed_file'] = failed_file if not failed_df.empty else None
-            progress_data[self.task_id]['stats'] = stats
-
-           
-            try:
-                os.remove(input_csv)
-            except:
-                pass
-
-            return True
-
-        except Exception as e:
-            progress_data[self.task_id]['status'] = 'error'
-            progress_data[self.task_id]['message'] = f'Error: {str(e)}'
-            return False
-
 class SuzukiReactionPredictor:
     def __init__(self):
         self.model = None
         self.current_model_name = 'Hist Gradient Boosting'
         self.df = None
-        self.original_df = None 
-        self.label_encoders = {} 
+        self.original_df = None
+        self.label_encoders = {}
         self.models = {
             'Random Forest': RandomForestRegressor(
                 n_estimators=200,
@@ -332,10 +121,7 @@ class SuzukiReactionPredictor:
                 n_jobs=-1),
             'SVR': Pipeline([
                 ('scaler', StandardScaler()),
-                ('svr', SVR(
-                    kernel='rbf',
-                    C=1.0,
-                    epsilon=0.1))
+                ('svr', SVR(kernel='rbf', C=1.0, epsilon=0.1))
             ]),
             'Neural Network': Pipeline([
                 ('scaler', StandardScaler()),
@@ -350,26 +136,21 @@ class SuzukiReactionPredictor:
 
     def load_and_prepare_data(self, path):
         try:
-           
             self.original_df = pd.read_csv(path)
             self.original_df.columns = self.original_df.columns.str.lower().str.replace(' ', '_')
             
-           
             df = self.original_df.copy()
             
-           
             if 'yield' in df.columns:
                 df['yield'] = pd.to_numeric(df['yield'], errors='coerce')
                 df = df.dropna(subset=['yield'])
                 df['yield'] = df['yield'].clip(0, 100)
             
-           
             numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
             for col in numeric_cols:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
                 df[col] = df[col].fillna(df[col].mean())
             
-           
             categorical_cols = df.select_dtypes(include=['object', 'category']).columns
             for col in categorical_cols:
                 df[col] = df[col].astype(str)
@@ -380,7 +161,6 @@ class SuzukiReactionPredictor:
                 df[col] = le.fit_transform(df[col])
                 self.label_encoders[col] = le
 
-           
             for i in [1, 2]:
                 if f'subs{i}_smiles' in df.columns:
                     df[f'subs{i}_mol'] = df[f'subs{i}_smiles'].apply(
@@ -396,7 +176,6 @@ class SuzukiReactionPredictor:
                         lambda x: Descriptors.MolLogP(x) if x else np.nan
                     )
 
-           
             new_numeric = ['subs1_ha', 'subs2_ha', 'subs1_rb', 'subs2_rb', 'subs1_logp', 'subs2_logp']
             for col in new_numeric:
                 if col in df.columns:
@@ -408,14 +187,6 @@ class SuzukiReactionPredictor:
             traceback.print_exc()
             return False, f"Data loading error: {str(e)}"
 
-    def get_original_categories(self, column_name):
-        
-        if column_name in self.label_encoders:
-            return list(self.label_encoders[column_name].classes_)
-        elif self.original_df is not None and column_name in self.original_df.columns:
-            return sorted(self.original_df[column_name].astype(str).unique().tolist())
-        return []
-
     def select_model(self, model_name):
         if model_name not in self.models:
             return False, f"Unknown model: {model_name}"
@@ -426,14 +197,12 @@ class SuzukiReactionPredictor:
         try:
             self.current_model_name = model_name
             
-           
             numeric_features = ['temp', 'time', 'quantity',
                               'subs1_ha', 'subs2_ha',
                               'subs1_rb', 'subs2_rb',
                               'subs1_logp', 'subs2_logp']
             categorical_features = ['catalizor', 'base', 'solv1', 'solv2']
             
-           
             available_features = []
             for feature in numeric_features + categorical_features:
                 if feature in self.df.columns:
@@ -445,7 +214,6 @@ class SuzukiReactionPredictor:
             available_numeric = [f for f in numeric_features if f in available_features]
             available_categorical = [f for f in categorical_features if f in available_features]
 
-           
             if model_name in ['SVR', 'Neural Network']:
                 self.model = self.models[model_name]
             else:
@@ -456,7 +224,7 @@ class SuzukiReactionPredictor:
 
                 categorical_transformer = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy='constant', fill_value=-1)),
-                    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
                 ])
 
                 preprocessor = ColumnTransformer(
@@ -486,6 +254,13 @@ class SuzukiReactionPredictor:
             traceback.print_exc()
             return False, f"Model training error: {str(e)}"
 
+    def get_original_categories(self, column_name):
+        if column_name in self.label_encoders:
+            return list(self.label_encoders[column_name].classes_)
+        elif self.original_df is not None and column_name in self.original_df.columns:
+            return sorted(self.original_df[column_name].astype(str).unique().tolist())
+        return []
+
     def predict_yield(self, reaction_conditions):
         if self.model is None:
             return None, "Model not trained yet"
@@ -493,7 +268,6 @@ class SuzukiReactionPredictor:
         try:
             input_df = pd.DataFrame([reaction_conditions])
             
-           
             for col in input_df.select_dtypes(include=['object']).columns:
                 if col in self.label_encoders:
                     input_df[col] = input_df[col].astype(str)
@@ -503,7 +277,6 @@ class SuzukiReactionPredictor:
                     except ValueError:
                         input_df[col] = len(self.label_encoders[col].classes_)
 
-           
             for i in [1, 2]:
                 if f'subs{i}_smiles' in reaction_conditions:
                     smiles = reaction_conditions[f'subs{i}_smiles']
@@ -513,7 +286,6 @@ class SuzukiReactionPredictor:
                         input_df[f'subs{i}_rb'] = Descriptors.NumRotatableBonds(mol) if mol else np.nan
                         input_df[f'subs{i}_logp'] = Descriptors.MolLogP(mol) if mol else np.nan
 
-           
             for col in input_df.columns:
                 if pd.api.types.is_numeric_dtype(input_df[col]):
                     input_df[col] = pd.to_numeric(input_df[col], errors='coerce')
@@ -537,7 +309,7 @@ class SuzukiReactionPredictor:
             catalysts = self.get_original_categories('catalizor')
             
             results = []
-            for catalyst in catalysts[:20]: 
+            for catalyst in catalysts[:20]:
                 conditions = reaction_conditions.copy()
                 conditions['catalizor'] = catalyst
                 yield_pred, error = self.predict_yield(conditions)
@@ -600,7 +372,7 @@ def handle_errors(f):
     return wrapper
 
 def standardize_smiles(smiles):
-    
+    """Standardize SMILES using RDKit"""
     if pd.isna(smiles) or not str(smiles).strip():
         return None
     
@@ -615,7 +387,7 @@ def standardize_smiles(smiles):
         return None
 
 def get_pubchem_smiles(name):
-    
+    """Get SMILES from PubChem by name"""
     if not name or str(name).lower() == 'nan':
         return None
     
@@ -736,7 +508,7 @@ def upload_file():
         
         if file and file.filename.endswith('.csv'):
             filename = f"uploaded_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}"
-            filepath = os.path.join(OUTPUTS_DIR, filename) 
+        
             
             if not os.path.exists(OUTPUTS_DIR):
                 os.makedirs(OUTPUTS_DIR)
@@ -948,7 +720,7 @@ def save_data():
 
 @app.route('/compare-models')
 def compare_models():
-    return render_template('compare.html')
+    return render_template('messi.html')
 
 @app.route('/get_xml_files')
 def get_xml_files():
@@ -1067,7 +839,6 @@ def predict_ml_page():
     current_model = predictor.current_model_name
     has_data = predictor.original_df is not None
     
-   
     data_info = {}
     if has_data:
         data_info = {
@@ -1128,7 +899,7 @@ def load_data():
         if not filename:
             return jsonify({'success': False, 'message': 'Filename not specified'})
         
-        filepath = os.path.join(OUTPUTS_DIR, filename) 
+    
         if not os.path.exists(filepath):
             return jsonify({'success': False, 'message': 'File not found'})
         
@@ -1186,7 +957,6 @@ def api_model_performance():
 @app.route('/api/change_model', methods=['POST'])
 def api_change_model():
     try:
-       
         if not request.is_json:
             return jsonify({
                 'success': False,
@@ -1195,7 +965,6 @@ def api_change_model():
 
         data = request.get_json()
         
-       
         if not data or 'model_name' not in data:
             return jsonify({
                 'success': False,
@@ -1204,7 +973,6 @@ def api_change_model():
             
         model_name = data['model_name']
         
-       
         success, message = predictor.select_model(model_name)
         
         if not success:
@@ -1213,14 +981,12 @@ def api_change_model():
                 'message': message
             }), 400
 
-       
         response_data = {
             'success': True,
             'message': message,
             'current_model': predictor.current_model_name
         }
 
-       
         if hasattr(predictor, 'df') and predictor.df is not None:
             X = predictor.df[[col for col in predictor.df.columns if col != 'yield']]
             y = predictor.df['yield']
@@ -1233,7 +999,6 @@ def api_change_model():
         return jsonify(response_data)
 
     except Exception as e:
-       
         return jsonify({
             'success': False,
             'message': f'Server error: {str(e)}'
@@ -1242,11 +1007,11 @@ def api_change_model():
 @app.route('/api/make_prediction', methods=['POST'])
 def api_make_prediction():
     try:
-        conditions = request.json
+        conditions = request.get_json()
         prediction, error = predictor.predict_yield(conditions)
         
         if error:
-            return jsonify({'success': False, 'message': error})
+            return jsonify({'success': False, 'message': error}), 400
         
         smiles_list = [conditions.get('subs1_smiles', ''), conditions.get('subs2_smiles', '')]
         img_str = predictor.visualize_molecules(smiles_list, ['Boronic Acid', 'Aryl Halide'])
@@ -1259,16 +1024,16 @@ def api_make_prediction():
         })
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'success': False, 'message': f'Prediction error: {str(e)}'})
+        return jsonify({'success': False, 'message': f'Prediction error: {str(e)}'}), 500
 
 @app.route('/api/optimize_catalyst', methods=['POST'])
 def api_optimize_catalyst():
     try:
-        conditions = request.json
+        conditions = request.get_json()
         results, error = predictor.optimize_catalyst(conditions)
         
         if error:
-            return jsonify({'success': False, 'message': error})
+            return jsonify({'success': False, 'message': error}), 400
         
         smiles_list = [conditions.get('subs1_smiles', ''), conditions.get('subs2_smiles', '')]
         img_str = predictor.visualize_molecules(smiles_list, ['Boronic Acid', 'Aryl Halide'])
@@ -1281,7 +1046,7 @@ def api_optimize_catalyst():
         })
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'success': False, 'message': f'Optimization error: {str(e)}'})
+        return jsonify({'success': False, 'message': f'Optimization error: {str(e)}'}), 500
 
 @app.route('/api/get_top_catalysts')
 def api_get_top_catalysts():
