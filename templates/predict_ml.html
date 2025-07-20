@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Molytica Chemical Analyzer</title>
+  <title>Molytica Chemical Analyser</title>
   <link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -241,6 +241,51 @@
     .form-control:focus {
       outline: none;
       border-color: var(--color-primary);
+    }
+    
+    /* Combobox with manual input */
+    .combobox {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .combobox-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      background: var(--bg-primary);
+    }
+    
+    .combobox-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
+    .combobox-list {
+      position: absolute;
+      z-index: 1000;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      display: none;
+    }
+    
+    .combobox-list.show {
+      display: block;
+    }
+    
+    .combobox-option {
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+    
+    .combobox-option:hover {
+      background-color: var(--bg-secondary);
     }
     
     .form-row {
@@ -501,7 +546,7 @@
 <header>
   <div class="header-left">
     <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" id="logo">
-    <h1 id="title">Molytica Chemical Analyzer</h1>
+    <h1 id="title">CHEMICAL ANALYSER</h1>
   </div>
   <div class="header-right">
     <div id="clock" title="Current Time"></div>
@@ -510,31 +555,31 @@
 </header>
 
 <div class="container">
-
+  <!-- Sol Panel - Dosya Listesi -->
   <div class="file-panel">
     <h3 class="panel-title" id="files-title">CSV FILES</h3>
     <div class="file-list" id="fileList">
-    
+      <!-- Dosya listesi JavaScript ile doldurulacak -->
     </div>
   </div>
   
-
+  <!-- Ana İçerik Alanı -->
   <div class="main-content">
     <div class="header">
       <h1 id="main-title">SUZUKI REACTION PREDICTOR</h1>
       <p id="subtitle">Predict reaction yield with machine learning</p>
     </div>
     
-
+    <!-- Durum Mesajları -->
     <div id="statusMessage" class="status-message"></div>
     
-
+    <!-- Veri Bilgileri -->
     <div class="card" id="dataInfo" style="display: none;">
       <h3 class="card-title" id="data-info-title">DATA INFORMATION</h3>
       <div id="dataDetails"></div>
     </div>
     
-
+    <!-- Model Seçimi -->
     <div class="card" id="modelCard" style="display: none;">
       <h3 class="card-title" id="model-select-title">MODEL SELECTION</h3>
       <div class="form-group">
@@ -550,7 +595,7 @@
       </div>
     </div>
     
-
+    <!-- Reaksiyon Koşulları -->
     <div class="card" id="reactionCard" style="display: none;">
       <h3 class="card-title" id="reaction-title">REACTION CONDITIONS</h3>
       <form id="reactionForm">
@@ -565,37 +610,41 @@
           </div>
           <div class="form-group">
             <label for="quantity" id="quantity-label">AMOUNT (MMOL):</label>
-            <input type="number" id="quantity" class="form-control" value="1.0" step="0.1" required>
+            <input type="number" id="quantity" class="form-control" value="0.0025" step="0.0001" min="0" required>
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
             <label for="catalizor" id="catalyst-label">CATALYST:</label>
-            <select id="catalizor" class="form-control" required>
-              <option value="">SELECT...</option>
-            </select>
+            <div class="combobox">
+              <input type="text" id="catalizor" class="combobox-input" list="catalizor-list" placeholder="Select or type..." required>
+              <datalist id="catalizor-list"></datalist>
+            </div>
           </div>
           <div class="form-group">
             <label for="base" id="base-label">BASE:</label>
-            <select id="base" class="form-control" required>
-              <option value="">SELECT...</option>
-            </select>
+            <div class="combobox">
+              <input type="text" id="base" class="combobox-input" list="base-list" placeholder="Select or type..." required>
+              <datalist id="base-list"></datalist>
+            </div>
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
             <label for="solv1" id="solv1-label">SOLVENT 1:</label>
-            <select id="solv1" class="form-control" required>
-              <option value="">SELECT...</option>
-            </select>
+            <div class="combobox">
+              <input type="text" id="solv1" class="combobox-input" list="solv1-list" placeholder="Select or type..." required>
+              <datalist id="solv1-list"></datalist>
+            </div>
           </div>
           <div class="form-group">
             <label for="solv2" id="solv2-label">SOLVENT 2:</label>
-            <select id="solv2" class="form-control">
-              <option value="">SELECT...</option>
-            </select>
+            <div class="combobox">
+              <input type="text" id="solv2" class="combobox-input" list="solv2-list" placeholder="Select or type...">
+              <datalist id="solv2-list"></datalist>
+            </div>
           </div>
         </div>
         
@@ -619,13 +668,13 @@
       </form>
     </div>
     
-
+    <!-- Loading -->
     <div class="loading" id="loading">
       <div class="spinner"></div>
       <p id="loading-text">PROCESSING...</p>
     </div>
     
-
+    <!-- Sonuçlar -->
     <div class="result-container" id="resultContainer">
       <div class="card">
         <h3 class="card-title" id="results-title">RESULTS</h3>
@@ -646,7 +695,7 @@
       <a href="https://github.com/sefaakkoc"><i class="fab fa-github"></i></a>
       <a href="#"><i class="fab fa-linkedin"></i></a>
     </div>
-    <div class="copyright" id="copyright">© 2025 MOLYTICA CHEMICAL AnalyzeR</div>
+    <div class="copyright" id="copyright">© 2025 MOLYTICA CHEMICAL ANALYSER</div>
   </div>
 </footer>
 
@@ -694,7 +743,7 @@
       copyright: "© 2025 MOLYTICA KİMYASAL ANALİZ"
     },
     en: {
-      title: "CHEMICAL AnalyzeR",
+      title: "CHEMICAL ANALYSER",
       "files-title": "CSV FILES",
       "main-title": "SUZUKI REACTION PREDICTOR",
       subtitle: "Predict reaction yield with machine learning",
@@ -717,7 +766,7 @@
       "optimizeBtn": "OPTIMIZE CATALYST",
       contact: "CONTACT:",
       contactInfo: "sefaakkoc@outlook.com | @sefaakkoc",
-      copyright: "© 2025 MOLYTICA CHEMICAL AnalyzeR"
+      copyright: "© 2025 MOLYTICA CHEMICAL ANALYSER"
     }
   };
 
@@ -830,6 +879,7 @@
     
     async selectFile(filename, element) {
       try {
+
         document.querySelectorAll('.file-item').forEach(item => 
           item.classList.remove('active')
         );
@@ -895,31 +945,23 @@
     populateDropdowns() {
       if (!this.dataInfo) return;
       
-      this.populateSelect('catalizor', this.dataInfo.catalysts);
-      this.populateSelect('base', this.dataInfo.bases);
-      this.populateSelect('solv1', this.dataInfo.solvents1);
-      this.populateSelect('solv2', this.dataInfo.solvents2);
+      this.populateDatalist('catalizor-list', this.dataInfo.catalysts);
+      this.populateDatalist('base-list', this.dataInfo.bases);
+      this.populateDatalist('solv1-list', this.dataInfo.solvents1);
+      this.populateDatalist('solv2-list', this.dataInfo.solvents2);
     }
     
-    populateSelect(id, options) {
-      const select = document.getElementById(id);
-      const currentValue = select.value;
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
+    populateDatalist(id, options) {
+      const datalist = document.getElementById(id);
+      datalist.innerHTML = '';
       
       options.forEach(option => {
-        if (option) {
+        if (option) { 
           const optionElement = document.createElement('option');
           optionElement.value = option;
-          optionElement.textContent = option;
-          select.appendChild(optionElement);
+          datalist.appendChild(optionElement);
         }
       });
-
-      if (currentValue && options.includes(currentValue)) {
-        select.value = currentValue;
-      }
     }
     
     showCards() {
@@ -942,92 +984,98 @@
     }
     
     async changeModel(modelName) {
-        try {
-            this.showLoading(true);
-            const response = await fetch('/api/change_model', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    model_name: modelName 
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                const errorMessage = errorData?.message || `HTTP error! status: ${response.status}`;
-                throw new Error(errorMessage);
-            }
-
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const text = await response.text();
-                console.error('Received non-JSON response:', text.substring(0, 100));
-                throw new Error('Server returned unexpected response format');
-            }
-
-            const data = await response.json();
-
-            if (data.success) {
-                let successMessage = data.message;
-                if (data.stats) {
-                    successMessage += ` | MAE: ${data.stats.mae.toFixed(2)} | R²: ${data.stats.r2.toFixed(2)}`;
-                }
-                
-                this.showMessage(successMessage, 'success');
-
-                if (data.current_model) {
-                    document.getElementById('modelSelect').value = data.current_model;
-                }
-                
-                return true;
-            } else {
-                throw new Error(data.message || 'Model change failed');
-            }
-        } catch (error) {
-            console.error('Model change error:', error);
-            this.showMessage(`Model change failed: ${error.message}`, 'error');
-            return false;
-        } finally {
-            this.showLoading(false);
-        }
-    }
-    
-    async makePrediction() {
       try {
-        const conditions = this.getReactionConditions();
-        if (!conditions) return;
-        
         this.showLoading(true);
-        
-        const response = await fetch('/make_prediction', {
+ 
+        const response = await fetch('/api/change_model', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
-          body: JSON.stringify(conditions)
+          body: JSON.stringify({ 
+            model_name: modelName 
+          })
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          this.showPredictionResult(data.prediction, data.model);
-          if (data.molecule_image) {
-            this.showMoleculeImage(data.molecule_image);
-          }
-        } else {
-          this.showMessage(data.message, 'error');
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          const errorMessage = errorData?.message || `HTTP error! status: ${response.status}`;
+          throw new Error(errorMessage);
         }
-        
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('Received non-JSON response:', text.substring(0, 100));
+          throw new Error('Server returned unexpected response format');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          let successMessage = data.message;
+          if (data.stats) {
+            successMessage += ` | MAE: ${data.stats.mae.toFixed(2)} | R²: ${data.stats.r2.toFixed(2)}`;
+          }
+          
+          this.showMessage(successMessage, 'success');
+
+          if (data.current_model) {
+            document.getElementById('modelSelect').value = data.current_model;
+          }
+          
+          return true;
+        } else {
+          throw new Error(data.message || 'Model change failed');
+        }
       } catch (error) {
-        this.showMessage('Prediction error: ' + error.message, 'error');
+        console.error('Model change error:', error);
+        this.showMessage(`Model change failed: ${error.message}`, 'error');
+        return false;
       } finally {
         this.showLoading(false);
       }
     }
     
+    async makePrediction() {
+      try {
+          const conditions = this.getReactionConditions();
+          if (!conditions) return;
+          
+          this.showLoading(true);
+          
+          const response = await fetch('/api/make_prediction', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(conditions)
+          });
+          
+          if (!response.ok) {
+              const errorData = await response.json().catch(() => null);
+              throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.success) {
+              this.showPredictionResult(data.prediction, data.model);
+              if (data.molecule_image) {
+                  this.showMoleculeImage(data.molecule_image);
+              }
+          } else {
+              this.showMessage(data.message, 'error');
+          }
+      } catch (error) {
+          this.showMessage('Prediction error: ' + error.message, 'error');
+          console.error('Prediction error:', error);
+      } finally {
+          this.showLoading(false);
+      }
+    }
+
     async optimizeCatalyst() {
       try {
         const conditions = this.getReactionConditions();
@@ -1035,13 +1083,18 @@
         
         this.showLoading(true);
         
-        const response = await fetch('/optimize_catalyst', {
+        const response = await fetch('/api/optimize_catalyst', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(conditions)
         });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+        }
         
         const data = await response.json();
         
@@ -1053,22 +1106,16 @@
         } else {
           this.showMessage(data.message, 'error');
         }
-        
       } catch (error) {
         this.showMessage('Optimization error: ' + error.message, 'error');
+        console.error('Optimization error:', error);
       } finally {
         this.showLoading(false);
       }
     }
     
     getReactionConditions() {
-      const form = document.getElementById('reactionForm');
-      const formData = new FormData(form);
-      
       const conditions = {};
-      for (let [key, value] of formData.entries()) {
-        conditions[key] = value;
-      }
 
       conditions.temp = parseFloat(document.getElementById('temp').value);
       conditions.time = parseFloat(document.getElementById('time').value);
