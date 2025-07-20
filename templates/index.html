@@ -318,10 +318,10 @@
     <h2 id="main-title">Ne yapmak istersiniz?</h2>
     <p class="subtitle" id="subtitle">Veri yükleyin, analiz edin ve raporlar oluşturun</p>
   </section>
-
   <div class="container">
     <section class="box" id="upload-section">
       <h3 id="section1-title">Veri Yükleme</h3>
+      <button class="btn" id="analyze_dataset">Verisetini Uygun Hale Getir</button>
       <button class="btn" id="manuel">Manuel Veri Girişi</button>
       <button class="btn" id="csv">CSV Dosyası Yükle</button>
       <button class="btn" id="excel">Excel'den CSV'ye Dönüştür</button>
@@ -329,6 +329,7 @@
 
     <section class="box" id="analysis-section">
       <h3 id="section2-title">Veri Analizi</h3>
+      <button class="btn" id="predict_ml">Katalizör,Verim Tahmini</button>
       <button class="btn" id="tahmin">Tahmin Yap</button>
       <button class="btn" id="gorsellestirme">Görselleştirme</button>
       <button class="btn" id="rapor">Model Karşılaştırması</button>
@@ -383,7 +384,9 @@
       yardim: "Yardım",
       contact: "İletişim:",
       contactInfo: "sefaakkoc@outlook.com | @sefaakkoc",
-      copyright: "© 2025 Molytica Chemical Analyzer"
+      copyright: "© 2025 Molytica Chemical Analyzer",
+      predict_ml: "Katalizör,Verim Tahmini",
+      analyze_dataset:"Verisetini Uygun Hale Getir"
     },
     en: {
       title: "Molytica Chemical Analyzer",
@@ -400,7 +403,9 @@
       yardim: "Help",
       contact: "Contact:",
       contactInfo: "sefaakkoc@outlook.com | @sefaakkoc",
-      copyright: "© 2025 Molytica Chemical Analyzer "
+      copyright: "© 2025 Molytica Chemical Analyzer ",
+      predict_ml: "Catalizor,Yield Prediction",
+      analyze_dataset:"Preprocess the dataset"
     }
   };
 
@@ -421,6 +426,8 @@
       '#contact-label': 'contact',
       '#contact-info': 'contactInfo',
       '#copyright': 'copyright'
+      '#predict_ml': 'predict_ml',
+      '#analyze_dataset':'analyze_dataset'
     };
 
     Object.entries(elements).forEach(([selector, key]) => {
@@ -453,7 +460,7 @@
 
     setLanguage(currentLang);
     
-    document.querySelectorAll('#manuel, #csv, #excel, #tahmin, #gorsellestirme, #rapor, #yardim').forEach(button => {
+    document.querySelectorAll('#manuel, #csv, #excel, #tahmin, #gorsellestirme, #rapor, #yardim, #predict_ml, #analyze_dataset').forEach(button => {
       button.addEventListener('click', () => {
         const urls = {
           '#manuel': '/manual',
@@ -463,6 +470,8 @@
           '#gorsellestirme': '/visual',
           '#rapor': '/compare-models',
           '#yardim': '/help'
+          '#predict_ml': '/predict_ml',
+          '#analyze_dataset':'/analyze_dataset'
         };
         window.location.href = urls[`#${button.id}`];
       });
