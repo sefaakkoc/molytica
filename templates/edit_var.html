@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Molytica XML Editor</title>
+  <link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" type="image/x-icon">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #fff;
+      color: #000;
+      height: 100%;
+    }
+
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background-color: #fff;
+      border-bottom: 2px solid #000;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 1000;
+      user-select: none;
+      justify-content: space-between;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      height: 60px;
+      cursor: pointer;
+    }
+
+    .app-header h1 {
+      font-weight: 700;
+      font-size: 26px;
+      color: #000;
+      margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    #clock {
+      font-size: 22px;
+      color: #000;
+    }
+
+    .language-switcher {
+      background: transparent;
+      border: 2px solid #000;
+      padding: 10px 20px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #000;
+    }
+
+    .language-switcher:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .app-main {
+      padding: 120px 8% 60px 8%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    button {
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 14px 36px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      min-width: 120px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #555;
+    }
+
+    button:disabled {
+      background-color: #BEC8D2;
+      color: #7a7d81;
+      cursor: not-allowed;
+    }
+
+    .editor-section {
+      background-color: #fff;
+      border: 2px solid #000;
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .editor-section h2 {
+      font-weight: 700;
+      font-size: 24px;
+      color: #000;
+      margin-bottom: 24px;
+    }
+
+    .xml-editor {
+      width: 100%;
+      min-height: 500px;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 16px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border: 1px solid #c62828;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    .success-message {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      border: 1px solid #2e7d32;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .app-main {
+        padding: 80px 16px 60px 16px;
+      }
+      button {
+        width: 100%;
+        min-width: unset;
+      }
+      .toolbar {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-content">
+    <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" class="logo" onclick="window.location.href='/'" />
+    <h1 id="headerTitle">XML Veri Düzenleyici</h1>
+  </div>
+  <div class="header-right">
+    <div id="clock"></div>
+    <button class="language-switcher" id="languageSwitcher">Dil: TR</button>
+  </div>
+</header>
+
+<main class="app-main">
+  <section class="toolbar">
+    <button id="saveBtn">Kaydet</button>
+  </section>
+
+  <section class="editor-section">
+    <h2 id="editorTitle">Düzenlenen Veriler: info.xml</h2>
+    <div class="xml-editor" id="xmlEditor" contenteditable="true"></div>
+  </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const xmlEditor = document.getElementById('xmlEditor');
+  const saveBtn = document.getElementById('saveBtn');
+  const languageSwitcher = document.getElementById('languageSwitcher');
+  const headerTitle = document.getElementById('headerTitle');
+  const editorTitle = document.getElementById('editorTitle');
+  
+  let currentLanguage = 'tr';
+  let originalXml = '';
+  
+  // Dil çevirileri
+  const translations = {
+    'tr': {
+      'headerTitle': 'XML Veri Düzenleyici',
+      'editorTitle': 'Düzenlenen Veriler: info.xml',
+      'saveBtn': 'Kaydet',
+      'languageBtn': 'Dil: TR',
+      'successMessage': 'XML başarıyla kaydedildi: info.xml',
+      'errorMessage': 'Hata: '
+    },
+    'en': {
+      'headerTitle': 'XML Data Editor',
+      'editorTitle': 'Edited Data: info.xml',
+      'saveBtn': 'Save',
+      'languageBtn': 'Language: EN',
+      'successMessage': 'XML successfully saved: info.xml',
+      'errorMessage': 'Error: '
+    }
+  };
+  
+  // Saat güncelleme
+  function updateClock() {
+    const now = new Date();
+    const clock = document.getElementById('clock');
+    if (clock) {
+      if (currentLanguage === 'tr') {
+        clock.textContent = now.toLocaleTimeString('tr-TR');
+      } else {
+        clock.textContent = now.toLocaleTimeString('en-US');
+      }
+    }
+  }
+  
+  // Dili değiştir
+  function switchLanguage() {
+    currentLanguage = currentLanguage === 'tr' ? 'en' : 'tr';
+    applyLanguage();
+  }
+  
+  // Dili uygula
+  function applyLanguage() {
+    const t = translations[currentLanguage];
+    headerTitle.textContent = t.headerTitle;
+    editorTitle.textContent = t.editorTitle;
+    saveBtn.textContent = t.saveBtn;
+    languageSwitcher.textContent = t.languageBtn;
+  }
+  
+  // Dil değiştiriciye tıklama olayı
+  languageSwitcher.addEventListener('click', switchLanguage);
+  
+  updateClock();
+  setInterval(updateClock, 1000);
+  
+  // XML dosyasını yükle
+  async function loadXML() {
+    try {
+      const response = await fetch("{{ url_for('static', filename='xml_data/info.xml') }}");
+      if (!response.ok) throw new Error('XML dosyası yüklenemedi');
+      
+      const xmlContent = await response.text();
+      originalXml = xmlContent;
+      xmlEditor.textContent = formatXML(xmlContent);
+    } catch (error) {
+      showError(`${currentLanguage === 'tr' ? 'Hata: ' : 'Error: '}${error.message}`);
+      
+      // Örnek XML göster
+      xmlEditor.textContent = `<?xml version="1.0" encoding="UTF-8"?>
+<suzuki_config>
+    <chemical_intuition>
+        <temperature>
+            <optimal_temp>85</optimal_temp>
+            <temp_range>35</temp_range>
+            <min_temp>40</min_temp>
+            <max_temp>150</max_temp>
+        </temperature>
+    </chemical_intuition>
+</suzuki_config>`;
+    }
+  }
+  
+  // XML'i biçimlendir
+  function formatXML(xml) {
+    let formatted = '';
+    let indent = '';
+    const tab = '    ';
+    
+    xml.split(/>\s*</).forEach(node => {
+      if (node.match(/^\/\w/)) {
+        indent = indent.substring(tab.length);
+      }
+      formatted += indent + '<' + node + '>\r\n';
+      if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?xml')) {
+        indent += tab;
+      }
+    });
+    
+    return formatted.substring(1, formatted.length - 3);
+  }
+  
+  // Kaydet butonu
+  saveBtn.addEventListener('click', async function() {
+    try {
+      const editedXml = xmlEditor.textContent;
+      
+      const response = await fetch("{{ url_for('save_xml') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          xml: editedXml
+        })
+      });
+      
+      if (!response.ok) throw new Error('Sunucu hatası');
+      
+      const result = await response.json();
+      if (result.success) {
+        showSuccess(translations[currentLanguage].successMessage);
+        originalXml = editedXml;
+      } else {
+        throw new Error(result.message || 'Kayıt başarısız');
+      }
+    } catch (error) {
+      showError(translations[currentLanguage].errorMessage + error.message);
+    }
+  });
+  
+  // Hata mesajı göster
+  function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    
+    const main = document.querySelector('.app-main');
+    main.insertBefore(errorDiv, main.firstChild);
+    setTimeout(() => errorDiv.remove(), 5000);
+  }
+  
+  // Başarı mesajı göster
+  function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    
+    const main = document.querySelector('.app-main');
+    main.insertBefore(successDiv, main.firstChild);
+    setTimeout(() => successDiv.remove(), 5000);
+  }
+  
+  // XML'i yükle
+  loadXML();
+});
+</script>
+</body>
+</html>
