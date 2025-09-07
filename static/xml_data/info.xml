@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suzuki_config>
+
+    <chemical_intuition>
+
+        <temperature>
+
+            <optimal_temp>85</optimal_temp>
+
+            <temp_range>35</temp_range>
+
+            <min_temp>40</min_temp>
+
+            <max_temp>150</max_temp>
+
+            <degradation_threshold>130</degradation_threshold>
+
+            <too_low_threshold>50</too_low_threshold>
+
+            <temp_coefficient>0.8</temp_coefficient>
+
+        </temperature>
+
+        <time>
+
+            <optimal_time>18</optimal_time>
+
+            <time_range>12</time_range>
+
+            <min_time>1</min_time>
+
+            <max_time>48</max_time>
+
+            <time_coefficient>1.2</time_coefficient>
+
+        </time>
+
+        <catalyst>
+
+            <k_m>0.003</k_m>
+
+            <v_max>18</v_max>
+
+            <min_quantity>0.0005</min_quantity>
+
+            <max_quantity>0.08</max_quantity>
+
+            <degradation_threshold>0.04</degradation_threshold>
+
+            <quality_coefficient>0.6</quality_coefficient>
+
+        </catalyst>
+
+        <steric>
+
+            <threshold>0.35</threshold>
+
+            <penalty_coefficient>7.5</penalty_coefficient>
+
+            <ring_penalty_factor>0.3</ring_penalty_factor>
+
+            <bulky_group_penalty>1.8</bulky_group_penalty>
+
+        </steric>
+
+        <electronic>
+
+            <logp_coefficient>0.25</logp_coefficient>
+
+            <hbd_penalty>2.0</hbd_penalty>
+
+            <hba_bonus>1.5</hba_bonus>
+
+        </electronic>
+
+        <yield_parameters>
+
+            <max_yield>98</max_yield>
+
+            <min_yield>5</min_yield>
+
+            <base_yield_offset>45</base_yield_offset>
+
+            <random_variation>0.15</random_variation>
+
+        </yield_parameters>
+
+    </chemical_intuition>
+
+    <model_parameters>
+
+        <Random_Forest>
+
+            <n_estimators>250</n_estimators>
+
+            <max_depth>12</max_depth>
+
+            <min_samples_split>4</min_samples_split>
+
+            <min_samples_leaf>2</min_samples_leaf>
+
+            <random_state>42</random_state>
+
+            <n_jobs>-1</n_jobs>
+
+        </Random_Forest>
+
+        <Gradient_Boosting>
+
+            <n_estimators>300</n_estimators>
+
+            <max_depth>6</max_depth>
+
+            <min_samples_split>5</min_samples_split>
+
+            <learning_rate>0.08</learning_rate>
+
+            <subsample>0.8</subsample>
+
+            <random_state>42</random_state>
+
+        </Gradient_Boosting>
+
+        <Hist_Gradient_Boosting>
+
+            <max_iter>300</max_iter>
+
+            <max_depth>7</max_depth>
+
+            <min_samples_leaf>3</min_samples_leaf>
+
+            <learning_rate>0.1</learning_rate>
+
+            <random_state>42</random_state>
+
+        </Hist_Gradient_Boosting>
+
+        <XGBoost>
+
+            <n_estimators>280</n_estimators>
+
+            <max_depth>6</max_depth>
+
+            <learning_rate>0.09</learning_rate>
+
+            <subsample>0.85</subsample>
+
+            <colsample_bytree>0.9</colsample_bytree>
+
+            <random_state>42</random_state>
+
+            <n_jobs>-1</n_jobs>
+
+        </XGBoost>
+
+        <LightGBM>
+
+            <n_estimators>320</n_estimators>
+
+            <max_depth>8</max_depth>
+
+            <num_leaves>31</num_leaves>
+
+            <learning_rate>0.07</learning_rate>
+
+            <subsample>0.8</subsample>
+
+            <random_state>42</random_state>
+
+            <n_jobs>-1</n_jobs>
+
+        </LightGBM>
+
+        <SVR>
+
+            <kernel>rbf</kernel>
+
+            <C>1.2</C>
+
+            <epsilon>0.08</epsilon>
+
+            <gamma>scale</gamma>
+
+        </SVR>
+
+        <Neural_Network>
+
+            <hidden_layer_sizes>128,64,32</hidden_layer_sizes>
+
+            <activation>relu</activation>
+
+            <solver>adam</solver>
+
+            <alpha>0.001</alpha>
+
+            <learning_rate_init>0.001</learning_rate_init>
+
+            <max_iter>1000</max_iter>
+
+            <random_state>42</random_state>
+
+            <early_stopping>true</early_stopping>
+
+        </Neural_Network>
+
+    </model_parameters>
+
+    <feature_importance>
+
+        <temperature>0.25</temperature>
+
+        <time>0.18</time>
+
+        <catalyst_quantity>0.15</catalyst_quantity>
+
+        <substrate1_steric>0.12</substrate1_steric>
+
+        <substrate2_steric>0.12</substrate2_steric>
+
+        <solvent_effect>0.08</solvent_effect>
+
+        <base_effect>0.06</base_effect>
+
+        <electronic_effects>0.04</electronic_effects>
+
+    </feature_importance>
+
+</suzuki_config>
