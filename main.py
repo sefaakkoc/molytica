@@ -28,6 +28,7 @@ import base64
 from io import BytesIO
 import warnings
 import math
+import xml.etree.ElementTree as ET
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, HistGradientBoostingRegressor
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
@@ -103,7 +104,16 @@ class SuzukiReactionPredictor:
             'Neural Network': Pipeline([('scaler', StandardScaler()), ('mlp', MLPRegressor(hidden_layer_sizes=(100,50), activation='relu', solver='adam', random_state=42, max_iter=500))])
         }
         
-        self.chemical_intuition = {
+        self.chemical_intuition = self.load_config_from_xml()
+        
+        self.mol_cache = {}
+        self.steric_cache = {}
+        self.catalyst_cache = {}
+        self.prev_conditions = {}
+        self.prev_yield = {}
+
+    def load_config_from_xml(self):
+        config = {
             'optimal_temp': 90,
             'temp_range': 40,
             'optimal_time': 12,
@@ -121,10 +131,49 @@ class SuzukiReactionPredictor:
             'temp_too_low_threshold': 40,
             'catalyst_degradation_threshold': 0.05
         }
-
-        self.mol_cache = {}
-        self.steric_cache = {}
-        self.catalyst_cache = {}
+        
+        try:
+            xml_path = os.path.join(os.path.dirname(__file__), 'info.xml')
+            if os.path.exists(xml_path):
+                tree = ET.parse(xml_path)
+                root = tree.getroot()
+                
+                chem_intuition = root.find('chemical_intuition')
+                if chem_intuition is not None:
+                    temp = chem_intuition.find('temperature')
+                    if temp is not None:
+                        config['optimal_temp'] = float(temp.find('optimal_temp').text)
+                        config['temp_range'] = float(temp.find('temp_range').text)
+                        config['temp_degradation_threshold'] = float(temp.find('degradation_threshold').text)
+                        config['temp_too_low_threshold'] = float(temp.find('too_low_threshold').text)
+                    
+                    time_elem = chem_intuition.find('time')
+                    if time_elem is not None:
+                        config['optimal_time'] = float(time_elem.find('optimal_time').text)
+                        config['time_range'] = float(time_elem.find('time_range').text)
+                    
+                    catalyst = chem_intuition.find('catalyst')
+                    if catalyst is not None:
+                        config['catalyst_k_m'] = float(catalyst.find('k_m').text)
+                        config['catalyst_v_max'] = float(catalyst.find('v_max').text)
+                        config['min_catalyst'] = float(catalyst.find('min_quantity').text)
+                        config['max_catalyst'] = float(catalyst.find('max_quantity').text)
+                        config['catalyst_degradation_threshold'] = float(catalyst.find('degradation_threshold').text)
+                    
+                    steric = chem_intuition.find('steric')
+                    if steric is not None:
+                        config['steric_threshold'] = float(steric.find('threshold').text)
+                        config['steric_penalty'] = float(steric.find('penalty_coefficient').text)
+                    
+                    yield_params = chem_intuition.find('yield_parameters')
+                    if yield_params is not None:
+                        config['max_yield'] = float(yield_params.find('max_yield').text)
+                        config['min_yield'] = float(yield_params.find('min_yield').text)
+                        
+        except Exception as e:
+            app.logger.error(f"Error loading XML config: {str(e)}")
+        
+        return config
 
     def is_valid_smiles(self, smiles):
         if not smiles or str(smiles).lower() in ['nan', 'none']:
@@ -138,7 +187,7 @@ class SuzukiReactionPredictor:
 
     def apply_domain_knowledge(self, prediction, conditions):
         try:
-            base_yield = min(100, max(0, float(prediction)))
+            base_yield = min(self.chemical_intuition['max_yield'], max(self.chemical_intuition['min_yield'], float(prediction)))
             
             temp = float(conditions.get('temp', 80))
             time = float(conditions.get('time', 2))
@@ -146,6 +195,24 @@ class SuzukiReactionPredictor:
             subs1_steric = float(conditions.get('subs1_steric', 0))
             subs2_steric = float(conditions.get('subs2_steric', 0))
             catalyst_smiles = conditions.get('catalyst_smiles', '')
+            
+            reaction_key = f"{conditions.get('subs1_smiles', '')}_{conditions.get('subs2_smiles', '')}"
+            
+            if reaction_key in self.prev_conditions:
+                prev_cond = self.prev_conditions[reaction_key]
+                prev_yield = self.prev_yield[reaction_key]
+                
+                if temp > prev_cond.get('temp', temp):
+                    base_yield = max(base_yield, prev_yield)
+                
+                if catalyst_qty > prev_cond.get('quantity', catalyst_qty):
+                    base_yield = max(base_yield, prev_yield)
+                
+                if time > prev_cond.get('time', time):
+                    base_yield = max(base_yield, prev_yield)
+            
+            self.prev_conditions[reaction_key] = conditions.copy()
+            self.prev_yield[reaction_key] = base_yield
             
             temp_diff = (temp - self.chemical_intuition['optimal_temp']) / self.chemical_intuition['temp_range']
             temp_effect = 8 * math.exp(-2.5 * temp_diff**2)
@@ -169,14 +236,12 @@ class SuzukiReactionPredictor:
                 normalized_qty = min(catalyst_qty, self.chemical_intuition['max_catalyst'])
                 base_effect = self.chemical_intuition['catalyst_v_max'] * (normalized_qty / (normalized_qty + self.chemical_intuition['catalyst_k_m']))
                 quality_score = self.calculate_catalyst_score(catalyst_smiles)
-                quality_bonus = self.chemical_intuition['quality_bonus'] * math.log(1 + quality_score) *2
-                catalyst_effect = 4*(base_effect+ quality_bonus)
+                quality_bonus = self.chemical_intuition['quality_bonus'] * math.log(1 + quality_score) * 2
+                catalyst_effect = 4 * (base_effect + quality_bonus)
                 
                 if catalyst_qty > self.chemical_intuition['catalyst_degradation_threshold']:
                     excess_catalyst = catalyst_qty - self.chemical_intuition['catalyst_degradation_threshold']
                     catalyst_effect -= 0.8 * excess_catalyst
-
-                catalyst_effect -= catalyst_effect * 0.1
             
             steric_effect = 0
             max_steric = max(subs1_steric, subs2_steric)
@@ -197,9 +262,11 @@ class SuzukiReactionPredictor:
                 numbers_effect += numbers_count * 0.04
             
             adjusted_yield = base_yield + temp_effect + time_effect + catalyst_effect + steric_effect + numbers_effect
+            
             final_yield = adjusted_yield + 0.2 * (2*np.random.random() - 1)
             
-            final_yield = min(self.chemical_intuition['max_yield'], max(self.chemical_intuition['min_yield'], final_yield)) 
+            final_yield = min(self.chemical_intuition['max_yield'], max(self.chemical_intuition['min_yield'], final_yield))
+            
             return round(final_yield, 1)
             
         except Exception as e:
@@ -233,7 +300,7 @@ class SuzukiReactionPredictor:
             ]
             
             for pattern in bulky_patterns:
-                bulky_groups += len(mol.GetSubstructMatches(Chem.MolFromSmarts(pattern)))
+                bulky_groups += len(mol.GetSubstructMatches(Cerm.MolFromSmarts(pattern)))
             
             steric_score = (1 - ring_atom_ratio) * 0.6 + min(1.0, bulky_groups * 0.2)
             
@@ -379,7 +446,6 @@ class SuzukiReactionPredictor:
         if self.model is None:
             return None, "Model not trained yet"
         try:
-            # Validate SMILES inputs
             for i in [1, 2]:
                 subs_key = f'subs{i}_smiles'
                 if subs_key in reaction_conditions:
@@ -421,7 +487,7 @@ class SuzukiReactionPredictor:
             adjusted_prediction = self.apply_domain_knowledge(prediction, reaction_conditions)
             if isinstance(adjusted_prediction, str) and adjusted_prediction.startswith("ERROR:"):
                 return None, adjusted_prediction
-            final_prediction = max(10, min(98, round(adjusted_prediction, 1)))
+            final_prediction = max(self.chemical_intuition['min_yield'], min(self.chemical_intuition['max_yield'], round(adjusted_prediction, 1)))
             return final_prediction, None
         except Exception as e:
             traceback.print_exc()
@@ -441,7 +507,6 @@ class SuzukiReactionPredictor:
         if self.df is None or 'catalizor' not in self.df.columns:
             return None, "Data not loaded or no catalyst info"
         try:
-            # Validate SMILES inputs first
             for i in [1, 2]:
                 subs_key = f'subs{i}_smiles'
                 if subs_key in reaction_conditions:
@@ -616,6 +681,33 @@ def index():
 def analyze_dataset():
     return render_template('analyse_dataset.html')
 
+@app.route('/edit-xml')
+def edit_xml():
+    return render_template('edit_var.html')
+
+@app.route('/save-xml', methods=['POST'])
+def save_xml():
+    try:
+        data = request.get_json()
+        xml_content = data.get('xml', '')
+        
+        
+        try:
+            ET.fromstring(xml_content)
+        except ET.ParseError as e:
+            return jsonify({'success': False, 'message': f'Geçersiz XML formatı: {str(e)}'})
+        
+        
+        xml_path = os.path.join('static', 'xml_data', 'info.xml')
+        os.makedirs(os.path.dirname(xml_path), exist_ok=True)
+        
+        with open(xml_path, 'w', encoding='utf-8') as file:
+            file.write(xml_content)
+        
+        return jsonify({'success': True, 'message': 'XML başarıyla kaydedildi'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Hata: {str(e)}'})
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
@@ -741,7 +833,7 @@ def run_model():
     app.logger.info(f"Starting model: {selected_code} with datasets: {selected_datasets}")
     thread = threading.Thread(target=run_python_script, args=(selected_code, selected_datasets))
     thread.start()
-    return jsonify({"status": "success", "message": "Model is running!"})
+    return jsonify({"status": "success", 'message': "Model is running!"})
 
 @app.route('/stream_output')
 def stream_output():
@@ -950,7 +1042,7 @@ def predict_ml_page():
             'solvents1': predictor.get_original_categories('solv1'),
             'solvents2': predictor.get_original_categories('solv2')
         }
-    
+
     return render_template('predict_ml.html', csv_files=csv_files, models=models, current_model=current_model, has_data=has_data, data_info=data_info)
 
 @app.route('/api/get_csv_files')
